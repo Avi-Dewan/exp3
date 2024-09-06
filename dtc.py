@@ -273,7 +273,7 @@ if __name__ == "__main__":
     print(model)
     print('---------------------------------')
     for name, param in model.named_parameters(): 
-        if 'linear' not in name:
+        if 'linear' not in name and 'layer4' not in name:
             param.requires_grad = False
         print(name)
 
@@ -286,25 +286,25 @@ if __name__ == "__main__":
         TE_train(model, train_loader, eval_loader, args)
     elif args.DTC == 'TEP':
         TEP_train(model, train_loader, eval_loader, args)
-    acc, nmi, ari, _ = test(model, eval_loader, args,False)
+    acc, nmi, ari, _ = test(model, eval_loader, args, True)
     print('Init ACC {:.4f}, NMI {:.4f}, ARI {:.4f}'.format(init_acc, init_nmi, init_ari))
     print('Final ACC {:.4f}, NMI {:.4f}, ARI {:.4f}'.format(acc, nmi, ari))
     if args.save_txt:
         with open(args.save_txt_path, 'a') as f:
             f.write("{:.4f}, {:.4f}, {:.4f}\n".format(acc, nmi, ari))
 
-    print("Testing if properly saved")
-    # Load the dictionary
-    model_dict = torch.load(args.model_dir)
+    # print("Testing if properly saved")
+    # # Load the dictionary
+    # model_dict = torch.load(args.model_dir)
 
-    # Create the model with clusters
-    model = ResNet(BasicBlock, [2,2,2,2], args.n_clusters).to(device)
+    # # Create the model with clusters
+    # model = ResNet(BasicBlock, [2,2,2,2], args.n_clusters).to(device)
 
-    # Load the state dictionary into the model
-    model.load_state_dict(model_dict['state_dict'], strict=False)
+    # # Load the state dictionary into the model
+    # model.load_state_dict(model_dict['state_dict'], strict=False)
 
-    # Load the center
-    model.center = Parameter(model_dict['center'])
+    # # Load the center
+    # model.center = Parameter(model_dict['center'])
 
-    acc, nmi, ari, _ = test(model, eval_loader, args,False)
-    print('Final ACC 2 {:.4f}, NMI {:.4f}, ARI {:.4f}'.format(acc, nmi, ari))
+    # acc, nmi, ari, _ = test(model, eval_loader, args,False)
+    # print('Final ACC 2 {:.4f}, NMI {:.4f}, ARI {:.4f}'.format(acc, nmi, ari))
