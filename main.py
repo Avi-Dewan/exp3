@@ -9,7 +9,6 @@ from torch.autograd import Variable
 import torch.optim as optim
 
 
-from utils.util import generated_sample
 from models.ganModel import Generator, Discriminator
 from gan_trainer.training_step import classifier_train_step, generator_train_step, discriminator_train_step
 from gan_trainer.pretraining import gan_pretraining
