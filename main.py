@@ -109,7 +109,7 @@ eval_loader = CIFAR10Loader(root=args.data_path, batch_size=args.batch_size, spl
 #  Loading Pretrained Model
 # --------------------
 # Classifier pretraining on source data
-model_dict = torch.load(args.model_dir)
+model_dict = torch.load(args.cls_pretraining_path)
 
 # Create the model with clusters
 classifier = ResNet(BasicBlock, [2,2,2,2], args.n_classes).to(args.device)
