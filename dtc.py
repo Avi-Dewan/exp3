@@ -109,7 +109,11 @@ def PI_train(model, train_loader, eva_loader, args):
         if epoch % args.update_interval ==0:
             print('updating target ...')
             args.p_targets = target_distribution(probs) 
-    torch.save(model.state_dict(), args.model_dir)
+    # Create a dictionary that includes the model's state dictionary and the center
+    model_dict = {'state_dict': model.state_dict(), 'center': model.center}
+
+    # Save the dictionary
+    torch.save(model_dict, args.model_dir)
     print("model saved to {}.".format(args.model_dir))
 
 def TE_train(model, train_loader, eva_loader, args):
