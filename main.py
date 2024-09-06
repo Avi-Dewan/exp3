@@ -100,6 +100,8 @@ args.device = torch.device("cuda" if args.device == 'cuda' and torch.cuda.is_ava
 args.img_training_path = os.path.join(args.training_path, 'images')
 args.models_training_path = os.path.join(args.training_path, 'models')
 
+args.n_clusters = 5
+
 # --------------------
 #   Data loading
 # --------------------
