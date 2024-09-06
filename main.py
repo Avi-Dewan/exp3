@@ -122,7 +122,7 @@ classifier.load_state_dict(model_dict['state_dict'], strict=False)
 # Load the center
 classifier.center = Parameter(model_dict['center'])
 
-init_acc, init_nmi, init_ari = test(classifier, eval_loader, args)
+init_acc, init_nmi, init_ari, _ = test(classifier, eval_loader, args)
 
 
 
