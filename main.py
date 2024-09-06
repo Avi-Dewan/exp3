@@ -103,8 +103,8 @@ args.models_training_path = os.path.join(args.training_path, 'models')
 # --------------------
 #   Data loading
 # --------------------
-train_loader = CIFAR10Loader(root=args.dataset_root, batch_size=args.batch_size, split='train', aug='twice', shuffle=True, target_list=range(5, 10))
-eval_loader = CIFAR10Loader(root=args.dataset_root, batch_size=args.batch_size, split='train', aug=None, shuffle=False, target_list=range(5, 10))
+train_loader = CIFAR10Loader(root=args.data_path, batch_size=args.batch_size, split='train', aug='twice', shuffle=True, target_list=range(5, 10))
+eval_loader = CIFAR10Loader(root=args.data_path, batch_size=args.batch_size, split='train', aug=None, shuffle=False, target_list=range(5, 10))
 # --------------------
 #  Loading Pretrained Model
 # --------------------
