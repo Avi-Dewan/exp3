@@ -292,3 +292,14 @@ if __name__ == "__main__":
     if args.save_txt:
         with open(args.save_txt_path, 'a') as f:
             f.write("{:.4f}, {:.4f}, {:.4f}\n".format(acc, nmi, ari))
+
+    print("Testing if properly saved")
+    # Load the dictionary
+    model_dict = torch.load(args.model_dir)
+    # Create the model
+    model = ResNet(BasicBlock, [2,2,2,2], 5).to(device)
+    # Load the state dictionary into the model
+    model.load_state_dict(model_dict['state_dict'])
+    # Load the center
+    model.center = Parameter(model_dict['center'])
+    test(model, eval_loader, args)
