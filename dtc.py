@@ -286,7 +286,7 @@ if __name__ == "__main__":
         TE_train(model, train_loader, eval_loader, args)
     elif args.DTC == 'TEP':
         TEP_train(model, train_loader, eval_loader, args)
-    acc, nmi, ari, _ = test(model, eval_loader, args,True)
+    acc, nmi, ari, _ = test(model, eval_loader, args,False)
     print('Init ACC {:.4f}, NMI {:.4f}, ARI {:.4f}'.format(init_acc, init_nmi, init_ari))
     print('Final ACC {:.4f}, NMI {:.4f}, ARI {:.4f}'.format(acc, nmi, ari))
     if args.save_txt:
@@ -296,10 +296,15 @@ if __name__ == "__main__":
     print("Testing if properly saved")
     # Load the dictionary
     model_dict = torch.load(args.model_dir)
-    # Create the model
-    model = ResNet(BasicBlock, [2,2,2,2], 5).to(device)
+
+    # Create the model with clusters
+    model = ResNet(BasicBlock, [2,2,2,2], args.n_clusters).to(device)
+
     # Load the state dictionary into the model
-    model.load_state_dict(model_dict['state_dict'])
+    model.load_state_dict(model_dict['state_dict'], strict=False)
+
     # Load the center
     model.center = Parameter(model_dict['center'])
-    test(model, eval_loader, args)
+
+    acc, nmi, ari, _ = test(model, eval_loader, args,False)
+    print('Final ACC 2 {:.4f}, NMI {:.4f}, ARI {:.4f}'.format(acc, nmi, ari))
