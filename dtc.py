@@ -307,4 +307,4 @@ if __name__ == "__main__":
     # model.center = Parameter(model_dict['center'])
 
     # acc, nmi, ari, _ = test(model, eval_loader, args,False)
-    # print('Final ACC 2 {:.4f}, NMI {:.4f}, ARI {:.4f}'.format(acc, nmi, ari))
+    # print('Final ACC {:.4f}, NMI {:.4f}, ARI {:.4f}'.format(acc, nmi, ari))
