@@ -242,7 +242,7 @@ if __name__ == "__main__":
     parser.add_argument('--exp_root', type=str, default='./data/experiments/')
     parser.add_argument('--model_name', type=str, default='resnet18')
     parser.add_argument('--save_txt_name', type=str, default='result.txt')
-    parser.add_argument('--DTC', type=str, default='PI')
+    parser.add_argument('--DTC', type=str, default='TE')
     args = parser.parse_args()
     args.cuda = torch.cuda.is_available()
     device = torch.device("cuda" if args.cuda else "cpu")
@@ -259,14 +259,14 @@ if __name__ == "__main__":
     train_loader = CIFAR10Loader(root=args.dataset_root, batch_size=args.batch_size, split='train', aug='twice', shuffle=True, target_list=range(args.n_labeled_classes, args.n_labeled_classes+args.n_clusters))
     eval_loader = CIFAR10Loader(root=args.dataset_root, batch_size=args.batch_size, split='train', aug=None, shuffle=False, target_list=range(args.n_labeled_classes, args.n_labeled_classes+args.n_clusters))
 
-    print('Train Loader Length: ', len(train_loader))
-    print('Eval Loader Length: ', len(eval_loader))
+    # print('Train Loader Length: ', len(train_loader))
+    # print('Eval Loader Length: ', len(eval_loader))
     
-    for batch_idx, ((x, _), label, idx) in enumerate(tqdm(train_loader)):
-        print('batch_idx: ', batch_idx, 'label_shape: ', label.shape)
-        print()
+    # for batch_idx, ((x, _), label, idx) in enumerate(tqdm(train_loader)):
+    #     print('batch_idx: ', batch_idx, 'label_shape: ', label.shape)
+    #     print()
     
-    sys.exit()
+    # sys.exit()
 
     model = ResNet(BasicBlock, [2,2,2,2], 5).to(device)
     model.load_state_dict(torch.load(args.pretrain_dir), strict=False)
