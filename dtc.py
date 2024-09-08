@@ -261,9 +261,9 @@ if __name__ == "__main__":
 
     print('Train Loader Length: ', len(train_loader))
     print('Eval Loader Length: ', len(eval_loader))
-    
+
     for batch_idx, ((x, _), label, idx) in enumerate(tqdm(train_loader)):
-        print(x.shape)
+        print()
     
     
     sys.exit()
