@@ -259,8 +259,8 @@ if __name__ == "__main__":
     train_loader = CIFAR10Loader(root=args.dataset_root, batch_size=args.batch_size, split='train', aug='twice', shuffle=True, target_list=range(args.n_labeled_classes, args.n_labeled_classes+args.n_clusters))
     eval_loader = CIFAR10Loader(root=args.dataset_root, batch_size=args.batch_size, split='train', aug=None, shuffle=False, target_list=range(args.n_labeled_classes, args.n_labeled_classes+args.n_clusters))
 
-    # print('Train Loader Length: ', len(train_loader))
-    # print('Eval Loader Length: ', len(eval_loader))
+    print('Train Loader Length: ', len(train_loader))
+    print('Eval Loader Length: ', len(eval_loader))
     
     # for batch_idx, ((x, _), label, idx) in enumerate(tqdm(train_loader)):
     #     print('batch_idx: ', batch_idx, 'label_shape: ', label.shape)
