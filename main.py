@@ -60,7 +60,7 @@ parser.add_argument('--device', type=str, default='cuda', choices=['cuda', 'cpu'
 parser.add_argument('--n_classes', type=int, default=5)
 
 # Classifier pretraining parameters
-parser.add_argument('--n_epochs_cls_pretraining', type=int, default=1)
+parser.add_argument('--n_epochs_cls_pretraining', type=int, default=10)
 parser.add_argument('--lr_cls_pretraining', type=float, default=1e-4)
 
 # GAN pretraining parameters
@@ -203,7 +203,7 @@ print('\n')
 #     Final Model
 # --------------------
 
-acc, nmi, ari, _ = test(classifier, eval_loader, args)
+acc, nmi, ari = test(classifier, eval_loader, args)
 print('Init ACC {:.4f}, NMI {:.4f}, ARI {:.4f}'.format(init_acc, init_nmi, init_ari))
 print('Final ACC {:.4f}, NMI {:.4f}, ARI {:.4f}'.format(acc, nmi, ari))
 
