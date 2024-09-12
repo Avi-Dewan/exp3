@@ -61,7 +61,7 @@ parser.add_argument('--n_classes', type=int, default=5)
 
 # Classifier pretraining parameters
 parser.add_argument('--n_epochs_cls_pretraining', type=int, default=30)
-parser.add_argument('--lr_cls_pretraining', type=float, default=1e-1)
+parser.add_argument('--lr_cls_pretraining', type=float, default=1e-4)
 
 # GAN pretraining parameters
 parser.add_argument('--latent_dim', type=int, default=100)
