@@ -151,8 +151,8 @@ def classifier_pretraining(args, train_loader, eval_loader):
             running_loss += loss
             targets=np.append(targets, label.cpu().numpy())
 
-        acc, nmi, ari = cluster_acc(targets, pseudoLabels.astype(int)), nmi_score(targets, pseudoLabels), ari_score(targets, pseudoLabels)
-
+        acc, nmi, ari = cluster_acc(targets.astype(int), pseudoLabels), nmi_score(targets, pseudoLabels), ari_score(targets, pseudoLabels)
+        
         print('Epoch [{}/{}], Loss: {:.4f}, acc {:.4f}, nmi {:.4f}, ari {:.4f}'.format(epoch+1, args.n_epochs_cls_pretraining, running_loss, acc, nmi, ari))
 
  
