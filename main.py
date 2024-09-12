@@ -11,7 +11,7 @@ import torch.optim as optim
 
 from models.ganModel import Generator, Discriminator
 from gan_trainer.training_step import classifier_train_step, generator_train_step, discriminator_train_step
-from gan_trainer.pretraining import gan_pretraining
+from gan_trainer.pretraining import gan_pretraining, classifier_pretraining
 
 from data.cifarloader import CIFAR10Loader
 from models.resnet import ResNet, BasicBlock
@@ -21,39 +21,27 @@ from sklearn.metrics import adjusted_rand_score as ari_score
 from utils.util import cluster_acc
 from torch.nn import Parameter
 
+
+
 def test(model, test_loader, args, tsne=False):
     model.eval()
     preds=np.array([])
     targets=np.array([])
     feats = np.zeros((len(test_loader.dataset), args.n_clusters))
-    probs= np.zeros((len(test_loader.dataset), args.n_clusters))
     device = next(model.parameters()).device
     for batch_idx, (x, label, idx) in enumerate(tqdm(test_loader)):
         x, label = x.to(device), label.to(device)
         feat = model(x)
-        prob = feat2prob(feat, model.center)
-        _, pred = prob.max(1)
+        _, pred = feat.max(1)
         targets=np.append(targets, label.cpu().numpy())
         preds=np.append(preds, pred.cpu().numpy())
         idx = idx.data.cpu().numpy()
         feats[idx, :] = feat.cpu().detach().numpy()
-        probs[idx, :] = prob.cpu().detach().numpy()
     acc, nmi, ari = cluster_acc(targets.astype(int), preds.astype(int)), nmi_score(targets, preds), ari_score(targets, preds)
     print('Test acc {:.4f}, nmi {:.4f}, ari {:.4f}'.format(acc, nmi, ari))
-    probs = torch.from_numpy(probs)
 
-    if tsne:
-        from sklearn.manifold import TSNE
-        import matplotlib.pyplot as plt
-        # tsne plot
-         # Create t-SNE visualization
-        X_embedded = TSNE(n_components=2).fit_transform(feats)  # Use meaningful features for t-SNE
-
-        plt.figure(figsize=(8, 6))
-        plt.scatter(X_embedded[:, 0], X_embedded[:, 1], c=targets, cmap='viridis')
-        plt.title("t-SNE Visualization of Learned Features on Unlabelled CIFAR-10 Subset")
-        plt.savefig(args.model_folder+'/tsne.png')
-    return acc, nmi, ari, probs 
+    
+    return acc, nmi, ari
 
 # Argument parser setup
 parser = argparse.ArgumentParser(description='Generative Pseudo-label Refinement for Unsupervised Domain Adaptation',
@@ -108,23 +96,15 @@ args.n_clusters = 5
 train_loader = CIFAR10Loader(root=args.data_path, batch_size=args.batch_size, split='train', aug='twice', shuffle=True, target_list=range(5, 10))
 eval_loader = CIFAR10Loader(root=args.data_path, batch_size=args.batch_size, split='train', aug=None, shuffle=False, target_list=range(5, 10))
 # --------------------
-#  Loading Pretrained Model
-# --------------------
-# Classifier pretraining on source data
-model_dict = torch.load(args.cls_pretraining_path)
 
-# Create the model with clusters
-classifier = ResNet(BasicBlock, [2,2,2,2], args.n_classes).to(args.device)
-
-# Load the state dictionary into the model
-classifier.load_state_dict(model_dict['state_dict'], strict=False)
-
-# Load the center
-classifier.center = Parameter(model_dict['center'])
-
-init_acc, init_nmi, init_ari, _ = test(classifier, eval_loader, args)
+# Classifier pretraining 
 
 
+
+classifier = classifier_pretraining(args, train_loader, eval_loader)
+init_acc, init_nmi, init_ari = test(classifier, eval_loader, args)
+
+print('Init ACC {:.4f}, NMI {:.4f}, ARI {:.4f}'.format(init_acc, init_nmi, init_ari))
 
 
 # if args.verbose:
