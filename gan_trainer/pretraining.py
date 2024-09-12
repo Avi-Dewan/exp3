@@ -140,16 +140,22 @@ def classifier_pretraining(args, train_loader, eval_loader):
     for epoch in range(args.n_epochs_cls_pretraining):
 
         running_loss = 0.0
+        targets=np.array([])
 
-        for i, ((images, _), _, _) in enumerate(tqdm(train_loader)):
+        for i, ((images, _), label, _) in enumerate(tqdm(train_loader)):
             images = images.to(args.device)
-            labels = pseudoLabels[i*args.batch_size:(i+1)*args.batch_size]
+            psuedoLabel = pseudoLabels[i*args.batch_size:(i+1)*args.batch_size]
 
-            loss = classifier_train_step(classifier, images, optimizer, criterion, labels)
+            loss = classifier_train_step(classifier, images, optimizer, criterion, psuedoLabel)
 
             running_loss += loss
+            targets=np.append(targets, label.cpu().numpy())
 
-        print ('Epoch [{}/{}], Loss: {:.4f}'.format(epoch+1, args.n_epochs_cls_pretraining, running_loss))
+        acc, nmi, ari = cluster_acc(targets.astype(int), pseudoLabels.astype(int)), nmi_score(targets, pseudoLabels), ari_score(targets, pseudoLabels)
+        
+        print('Epoch [{}/{}], Loss: {:.4f}, acc {:.4f}, nmi {:.4f}, ari {:.4f}'.format(epoch+1, args.n_epochs_cls_pretraining, running_loss, acc, nmi, ari))
+
+ 
 
     return classifier
 
