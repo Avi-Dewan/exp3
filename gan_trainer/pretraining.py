@@ -149,7 +149,7 @@ def classifier_pretraining(args, train_loader, eval_loader):
 
             running_loss += loss
 
-        print ('Epoch [{}/{}], Loss: {:.4f}'.format(epoch+1, args.n_epochs_cls_pretraining, running_loss.item()))
+        print ('Epoch [{}/{}], Loss: {:.4f}'.format(epoch+1, args.n_epochs_cls_pretraining, running_loss))
 
     return classifier
 
