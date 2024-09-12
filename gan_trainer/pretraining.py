@@ -133,6 +133,8 @@ def classifier_pretraining(args, train_loader, eval_loader):
     criterion = nn.CrossEntropyLoss().to(args.device)
     optimizer = optim.Adam(classifier.parameters(), lr=args.lr_cls_pretraining)
 
+    testLables  = pseudoLabels
+
     # Convert pseudoLabels to a tensor and move it to the device
     pseudoLabels = torch.from_numpy(pseudoLabels).long().to(args.device)
 
@@ -151,7 +153,7 @@ def classifier_pretraining(args, train_loader, eval_loader):
             running_loss += loss
             targets=np.append(targets, label.cpu().numpy())
 
-        acc, nmi, ari = cluster_acc(targets.astype(int), pseudoLabels), nmi_score(targets, pseudoLabels), ari_score(targets, pseudoLabels)
+        acc, nmi, ari = cluster_acc(targets.astype(int), testLables.astype(int)), nmi_score(targets, testLables), ari_score(targets, testLables)
         
         print('Epoch [{}/{}], Loss: {:.4f}, acc {:.4f}, nmi {:.4f}, ari {:.4f}'.format(epoch+1, args.n_epochs_cls_pretraining, running_loss, acc, nmi, ari))
 
