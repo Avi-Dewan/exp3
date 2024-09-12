@@ -6,7 +6,7 @@ import os
 import numpy as np
 
 import torch
-import tqdm
+from tqdm import tqdm
 import torch.nn as nn
 from torch.autograd import Variable
 import torch.optim as optim
