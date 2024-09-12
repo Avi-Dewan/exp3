@@ -108,13 +108,20 @@ def test(model, test_loader, args, tsne=False):
 def getPsedoLabels(model, train_loader, args):
     model.eval()
     pseudoLabels=np.array([])
+    targets=np.array([])
+
     device = next(model.parameters()).device
-    for batch_idx, ((x, _), _, _) in enumerate(tqdm(train_loader)):
+    for batch_idx, ((x, _), label, _) in enumerate(tqdm(train_loader)):
         x = x.to(device)
         feat = model(x)
         prob = feat2prob(feat, model.center)
         _, pseudoLabel = prob.max(1)
         pseudoLabels=np.append(pseudoLabels, pseudoLabel.cpu().numpy())
+        targets=np.append(targets, label.cpu().numpy())
+
+    acc, nmi, ari = cluster_acc(targets.astype(int), pseudoLabels.astype(int)), nmi_score(targets, pseudoLabels), ari_score(targets, pseudoLabels)
+    print('PseudoLabel acc {:.4f}, nmi {:.4f}, ari {:.4f}'.format(acc, nmi, ari))
+
     return pseudoLabels
 
 def classifier_pretraining(args, train_loader, eval_loader):
