@@ -60,7 +60,7 @@ parser.add_argument('--device', type=str, default='cuda', choices=['cuda', 'cpu'
 parser.add_argument('--n_classes', type=int, default=5)
 
 # Classifier pretraining parameters
-parser.add_argument('--n_epochs_cls_pretraining', type=int, default=10)
+parser.add_argument('--n_epochs_cls_pretraining', type=int, default=30)
 parser.add_argument('--lr_cls_pretraining', type=float, default=1)
 
 # GAN pretraining parameters
