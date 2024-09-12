@@ -141,7 +141,7 @@ def classifier_pretraining(args, train_loader, eval_loader):
 
         running_loss = 0.0
 
-        for i, ((images, _), _, _) in enumerate(train_loader):
+        for i, ((images, _), _, _) in enumerate(tqdm(train_loader)):
             images = images.to(args.device)
             labels = pseudoLabels[i*args.batch_size:(i+1)*args.batch_size]
 
