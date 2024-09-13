@@ -107,7 +107,7 @@ def PI_train(model, train_loader, eva_loader, args):
 
             if torch.isnan(sharp_loss).any():
                  print("prob: ", prob)
-                print("args.p_targets[idx]: ", args.p_targets[idx].float().to(device))
+                 print("args.p_targets[idx]: ", args.p_targets[idx].float().to(device))
 
             loss = sharp_loss + w * consistency_loss 
             loss_record.update(loss.item(), x.size(0))
