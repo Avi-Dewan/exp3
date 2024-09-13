@@ -26,6 +26,7 @@ def init_prob_kmeans(model, eval_loader, args):
     # cluster parameter initiate
     model.eval()
     total_data_length = len(eval_loader)*args.batch_size
+    print  (total_data_length)
     targets = np.zeros(total_data_length) 
     feats = np.zeros((total_data_length, 512))
     for _, (x, label, idx) in enumerate(eval_loader):
