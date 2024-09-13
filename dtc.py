@@ -83,7 +83,6 @@ def Baseline_train(model, train_loader, eva_loader, args):
     torch.save(model.state_dict(), args.model_dir)
     print("model saved to {}.".format(args.model_dir))
 
-
 def PI_train(model, train_loader, eva_loader, args):
     optimizer = SGD(model.parameters(), lr=args.lr, momentum=args.momentum, weight_decay=args.weight_decay)
     w = 0
@@ -91,30 +90,37 @@ def PI_train(model, train_loader, eva_loader, args):
         loss_record = AverageMeter()
         model.train()
         w = args.rampup_coefficient * ramps.sigmoid_rampup(epoch, args.rampup_length) 
+
         for batch_idx, ((x, x_bar), label, idx) in enumerate(tqdm(train_loader)):
             x, x_bar = x.to(device), x_bar.to(device)
-            feat = model(x)
-            feat_bar = model(x_bar)
-            prob = feat2prob(feat, model.center)
-            prob_bar = feat2prob(feat_bar, model.center)
-            sharp_loss = F.kl_div(prob.log(), args.p_targets[idx].float().to(device))
-            consistency_loss = F.mse_loss(prob, prob_bar)
-            loss = sharp_loss + w * consistency_loss 
-            loss_record.update(loss.item(), x.size(0))
-            optimizer.zero_grad()
-            loss.backward()
-            optimizer.step()
+            
+            with torch.autograd.detect_anomaly():  # Enable anomaly detection
+                feat = model(x)
+                feat_bar = model(x_bar)
+                prob = feat2prob(feat, model.center)
+                prob_bar = feat2prob(feat_bar, model.center)
+                
+                sharp_loss = F.kl_div(prob.log(), args.p_targets[idx].float().to(device))
+                consistency_loss = F.mse_loss(prob, prob_bar)
+                loss = sharp_loss + w * consistency_loss 
+                
+                loss_record.update(loss.item(), x.size(0))
+                optimizer.zero_grad()
+                loss.backward()  # This will raise an error if any invalid operation happens
+                optimizer.step()
+        
         print('Train Epoch: {} Avg Loss: {:.4f}'.format(epoch, loss_record.avg))
         _, _, _, probs = test(model, eva_loader, args)
-        if epoch % args.update_interval ==0:
+        
+        if epoch % args.update_interval == 0:
             print('updating target ...')
-            args.p_targets = target_distribution(probs) 
-    # Create a dictionary that includes the model's state dictionary and the center
+            args.p_targets = target_distribution(probs)
+            
+    # Save the model
     model_dict = {'state_dict': model.state_dict(), 'center': model.center}
-
-    # Save the dictionary
     torch.save(model_dict, args.model_dir)
     print("model saved to {}.".format(args.model_dir))
+
 
 def TE_train(model, train_loader, eva_loader, args):
     optimizer = SGD(model.parameters(), lr=args.lr, momentum=args.momentum, weight_decay=args.weight_decay)
