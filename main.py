@@ -75,7 +75,7 @@ parser.add_argument('--n_epochs_gan_pretraining', type=int, default=1)
 parser.add_argument('--lr_cls_training', type=float, default=1e-4)
 parser.add_argument('--lr_d_training', type=float, default=1e-4)
 parser.add_argument('--lr_g_training', type=float, default=1e-4)
-parser.add_argument('--n_epochs_training', type=int, default=1)
+parser.add_argument('--n_epochs_training', type=int, default=20)
 
 # Paths
 parser.add_argument('--results_path', type=str, default='./results')
