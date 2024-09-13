@@ -25,11 +25,11 @@ def init_prob_kmeans(model, eval_loader, args):
     model = model.to(device)
     # cluster parameter initiate
     model.eval()
-    total_data_length = len(eval_loader)*args.batch_size
-    targets = np.zeros(total_data_length) 
-    feats = np.zeros((total_data_length, 512))
-    # targets = np.zeros(len(eval_loader.dataset)) 
-    # feats = np.zeros((len(eval_loader.dataset), 512))
+    # total_data_length = len(eval_loader)*args.batch_size
+    # targets = np.zeros(total_data_length) 
+    # feats = np.zeros((total_data_length, 512))
+    targets = np.zeros(len(eval_loader.dataset)) 
+    feats = np.zeros((len(eval_loader.dataset), 512))
     for _, (x, label, idx) in enumerate(eval_loader):
         x = x.to(device)
         feat = model(x)
