@@ -143,7 +143,7 @@ def classifier_pretraining(args, train_loader, eval_loader):
     criterion = nn.CrossEntropyLoss().to(args.device)
     optimizer = optim.Adam(classifier.parameters(), lr=args.lr_cls_pretraining)
 
-
+    optimizer = optim.SGD(classifier.parameters(), lr=args.lr_cls_pretraining, momentum=args.momentum, weight_decay=args.weight_decay)
 
     # Convert pseudoLabels to a tensor and move it to the device
     pseudoLabels = torch.from_numpy(pseudoLabels).long().to(args.device)
