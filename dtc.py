@@ -98,15 +98,17 @@ def PI_train(model, train_loader, eva_loader, args):
             prob = feat2prob(feat, model.center)
             prob_bar = feat2prob(feat_bar, model.center)
 
-            print("prob: ", prob)
-            print("prob_bar: ", prob_bar)
-            print("args.p_targets[idx]: ", args.p_targets[idx].float().to(device))
-
+           
             sharp_loss = F.kl_div(prob.log(), args.p_targets[idx].float().to(device))
             consistency_loss = F.mse_loss(prob, prob_bar)
-
+            print("batch_idx: ", batch_idx)
             print("sharp_loss: ", sharp_loss)
             print("consistency_loss: ", consistency_loss)
+
+            if torch.isnan(sharp_loss).any():
+                 print("prob: ", prob)
+                print("args.p_targets[idx]: ", args.p_targets[idx].float().to(device))
+
             loss = sharp_loss + w * consistency_loss 
             loss_record.update(loss.item(), x.size(0))
             optimizer.zero_grad()
@@ -283,7 +285,6 @@ if __name__ == "__main__":
     for name, param in model.named_parameters(): 
         if 'linear' not in name and 'layer4' not in name:
             param.requires_grad = False
-        print(name)
 
     warmup_train(model, train_loader, eval_loader, args)
     if args.DTC == 'Baseline':
