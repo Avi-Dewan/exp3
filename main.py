@@ -156,7 +156,7 @@ for epoch in range(args.n_epochs_training):
 
         # Step 3: Sample latent space and random labels
         z = Variable(torch.randn(args.batch_size, args.latent_dim)).to(args.device)
-        fake_labels = Variable(torch.LongTensor(np.random.randint(0, args.n_classes, args.batch_size))).to(args.device)
+        fake_labels = Variable(torch.LongTensor(np.random.randint(5, 10, args.batch_size))).to(args.device)
 
         # Step 4: Generate fake images
         fake_images = generator(z, fake_labels).view(args.batch_size, 3, args.img_size, args.img_size)
