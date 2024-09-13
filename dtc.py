@@ -273,8 +273,6 @@ if __name__ == "__main__":
     eval_loader = CIFAR10Loader(root=args.dataset_root, batch_size=args.batch_size, split='train', aug=None, shuffle=False, target_list=range(args.n_labeled_classes, args.n_labeled_classes+args.n_clusters))
 
 
-    print("Dataset length: ", len(train_loader.dataset))
-
     model = ResNet(BasicBlock, [2,2,2,2], 5).to(device)
     model.load_state_dict(torch.load(args.pretrain_dir), strict=False)
     model.linear= Identity()
@@ -282,7 +280,6 @@ if __name__ == "__main__":
     init_acc, init_nmi, init_ari, init_centers, init_probs = init_prob_kmeans(init_feat_extractor, eval_loader, args)
     args.p_targets = target_distribution(init_probs) 
 
-    print(args.p_targets)
 
 
     model = ResNet(BasicBlock, [2,2,2,2], args.n_clusters).to(device)
@@ -298,7 +295,6 @@ if __name__ == "__main__":
 
     warmup_train(model, train_loader, eval_loader, args)
 
-    print(args.p_targets)
 
     if args.DTC == 'Baseline':
         Baseline_train(model, train_loader, eval_loader, args)
