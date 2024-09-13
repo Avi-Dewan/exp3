@@ -20,7 +20,10 @@ from modules.module import feat2prob, target_distribution
 from models.resnet import ResNet, BasicBlock
 from sklearn.metrics.cluster import normalized_mutual_info_score as nmi_score
 from sklearn.metrics import adjusted_rand_score as ari_score
-from utils.util import cluster_acc
+from utils.util import cluster_acc, Identity, AverageMeter, seed_torch, str2bool
+
+
+
 # def cls_pretraining(classifier, loader_train, loader_test, learning_rate, n_epochs, results_path):
 #     """
 
@@ -148,24 +151,20 @@ def classifier_pretraining(args, train_loader, eval_loader):
     # Training loop
     for epoch in range(args.n_epochs_cls_pretraining):
 
-        running_loss = 0.0
-        targets=np.array([])
+        loss_record = AverageMeter()
 
-        for i, ((images, _), label, _) in enumerate(tqdm(train_loader)):
+        for i, ((images, _), _, _) in enumerate(tqdm(train_loader)):
             images = images.to(args.device)
             psuedoLabel = pseudoLabels[i*args.batch_size:(i+1)*args.batch_size]
 
             loss = classifier_train_step(classifier, images, optimizer, criterion, psuedoLabel)
 
-            running_loss += loss
-            targets=np.append(targets, label.cpu().numpy())
-
-        acc, nmi, ari = cluster_acc(targets.astype(int), testLables.astype(int)), nmi_score(targets, testLables), ari_score(targets, testLables)
+            loss_record.update(loss, images.size(0))
         
-        print('Epoch [{}/{}], Loss: {:.4f}, acc {:.4f}, nmi {:.4f}, ari {:.4f}'.format(epoch+1, args.n_epochs_cls_pretraining, running_loss, acc, nmi, ari))
+        print(f' Pretaining classifier: Epoch: {epoch} || loss: {loss_record.avg}')
 
- 
-
+    test(classifier, train_loader, args)
+        
     return classifier
 
 
