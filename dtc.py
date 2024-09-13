@@ -97,21 +97,18 @@ def PI_train(model, train_loader, eva_loader, args):
             feat_bar = model(x_bar)
             prob = feat2prob(feat, model.center)
             prob_bar = feat2prob(feat_bar, model.center)
-
-            print("prob: ", prob)
-            print("args.p_targets[idx]: ", args.p_targets[idx].float().to(device))
            
             sharp_loss = F.kl_div(prob.log(), args.p_targets[idx].float().to(device))
             consistency_loss = F.mse_loss(prob, prob_bar)
-            print("batch_idx: ", batch_idx)
-            print("sharp_loss: ", sharp_loss)
-            print("consistency_loss: ", consistency_loss)
+       
 
             if torch.isnan(sharp_loss).any():
-                 print("prob: ", prob)
-                 print("prob log: ", prob.log())
-                 print("args.p_targets[idx]: ", args.p_targets[idx].float().to(device))
-                 break
+                print("batch_idx: ", batch_idx)
+                print("sharp_loss: ", sharp_loss)
+                print("consistency_loss: ", consistency_loss)
+                print("prob: ", prob)
+                print("args.p_targets[idx]: ", args.p_targets[idx].float().to(device))
+                break
 
             loss = sharp_loss + w * consistency_loss 
             loss_record.update(loss.item(), x.size(0))
@@ -119,7 +116,6 @@ def PI_train(model, train_loader, eva_loader, args):
             loss.backward()
             optimizer.step()
         print('Train Epoch: {} Avg Loss: {:.4f}'.format(epoch, loss_record.avg))
-        break
         _, _, _, probs = test(model, eva_loader, args)
         if epoch % args.update_interval ==0:
             print('updating target ...')
