@@ -26,9 +26,8 @@ def init_prob_kmeans(model, eval_loader, args):
     # cluster parameter initiate
     model.eval()
     total_data_length = len(eval_loader)*args.batch_size
-    print  (total_data_length)
-    targets = np.zeros(total_data_length) 
-    feats = np.zeros((total_data_length, 512))
+    targets = np.zeros(len(eval_loader.dataset)) 
+    feats = np.zeros((len(eval_loader.dataset), 512))
     for _, (x, label, idx) in enumerate(eval_loader):
         x = x.to(device)
         feat = model(x)
@@ -53,8 +52,6 @@ def warmup_train(model, train_loader, eva_loader, args):
         for batch_idx, ((x, _), label, idx) in enumerate(tqdm(train_loader)):
             x = x.to(device)
             feat = model(x)
-            print(idx)
-            continue
             prob = feat2prob(feat, model.center)
             loss = F.kl_div(prob.log(), args.p_targets[idx].float().to(device))
             loss_record.update(loss.item(), x.size(0))
