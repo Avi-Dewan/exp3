@@ -229,7 +229,7 @@ def CIFAR10Data(root, split='train', aug=None, target_list=range(5)):
     dataset = CIFAR10(root=root, split=split, transform=transform, target_list=target_list)
     return dataset
 
-def CIFAR10Loader(root, batch_size, split='train', num_workers=2, aug=None, shuffle=True, target_list=range(5), drop_last=False):
+def CIFAR10Loader(root, batch_size, split='train', num_workers=2, aug=None, shuffle=True, target_list=range(5), drop_last=True):
     dataset = CIFAR10Data(root, split, aug, target_list)
     
     # Determine the number of samples to drop if drop_last is True
