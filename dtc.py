@@ -53,6 +53,8 @@ def warmup_train(model, train_loader, eva_loader, args):
         for batch_idx, ((x, _), label, idx) in enumerate(tqdm(train_loader)):
             x = x.to(device)
             feat = model(x)
+            print(idx)
+            continue
             prob = feat2prob(feat, model.center)
             loss = F.kl_div(prob.log(), args.p_targets[idx].float().to(device))
             loss_record.update(loss.item(), x.size(0))
