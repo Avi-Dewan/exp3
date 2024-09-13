@@ -102,6 +102,8 @@ def PI_train(model, train_loader, eva_loader, args):
                 
                 sharp_loss = F.kl_div(prob.log(), args.p_targets[idx].float().to(device))
                 consistency_loss = F.mse_loss(prob, prob_bar)
+                print(sharp_loss)
+                print(consistency_loss)
                 loss = sharp_loss + w * consistency_loss 
                 
                 loss_record.update(loss.item(), x.size(0))
@@ -281,7 +283,7 @@ if __name__ == "__main__":
     for name, param in model.named_parameters(): 
         if 'linear' not in name and 'layer4' not in name:
             param.requires_grad = False
-        print(name)
+        # print(name)
 
     warmup_train(model, train_loader, eval_loader, args)
     if args.DTC == 'Baseline':
