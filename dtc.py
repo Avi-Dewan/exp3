@@ -52,6 +52,7 @@ def warmup_train(model, train_loader, eva_loader, args):
             x = x.to(device)
             feat = model(x)
             prob = feat2prob(feat, model.center)
+            print("args.p_targets[idx]: ", args.p_targets[idx].float().to(device))
             loss = F.kl_div(prob.log(), args.p_targets[idx].float().to(device))
             loss_record.update(loss.item(), x.size(0))
             optimizer.zero_grad()
