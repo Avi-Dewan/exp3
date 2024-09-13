@@ -280,6 +280,9 @@ if __name__ == "__main__":
     init_acc, init_nmi, init_ari, init_centers, init_probs = init_prob_kmeans(init_feat_extractor, eval_loader, args)
     args.p_targets = target_distribution(init_probs) 
 
+    print(args.p_targets)
+    
+
     model = ResNet(BasicBlock, [2,2,2,2], args.n_clusters).to(device)
     model.load_state_dict(init_feat_extractor.state_dict(), strict=False)
     model.center= Parameter(torch.Tensor(args.n_clusters, args.n_clusters))
