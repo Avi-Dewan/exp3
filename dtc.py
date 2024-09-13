@@ -52,7 +52,6 @@ def warmup_train(model, train_loader, eva_loader, args):
             x = x.to(device)
             feat = model(x)
             prob = feat2prob(feat, model.center)
-            print("args.p_targets[idx]: ", args.p_targets[idx].float().to(device))
             loss = F.kl_div(prob.log(), args.p_targets[idx].float().to(device))
             loss_record.update(loss.item(), x.size(0))
             optimizer.zero_grad()
@@ -282,7 +281,7 @@ if __name__ == "__main__":
     args.p_targets = target_distribution(init_probs) 
 
     print(args.p_targets)
-    
+
 
     model = ResNet(BasicBlock, [2,2,2,2], args.n_clusters).to(device)
     model.load_state_dict(init_feat_extractor.state_dict(), strict=False)
@@ -296,6 +295,9 @@ if __name__ == "__main__":
             param.requires_grad = False
 
     warmup_train(model, train_loader, eval_loader, args)
+
+    print(args.p_targets)
+
     if args.DTC == 'Baseline':
         Baseline_train(model, train_loader, eval_loader, args)
     elif args.DTC == 'PI':
