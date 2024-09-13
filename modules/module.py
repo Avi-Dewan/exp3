@@ -8,5 +8,5 @@ def feat2prob(feat, center, alpha=1.0):
     return q
 
 def target_distribution(q):
-    weight = q**2 / (q.sum(0) + 1e-9) 
+    weight = q**2 / q.sum(0)
     return (weight.t() / weight.sum(1)).t()

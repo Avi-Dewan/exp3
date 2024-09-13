@@ -269,6 +269,9 @@ if __name__ == "__main__":
     train_loader = CIFAR10Loader(root=args.dataset_root, batch_size=args.batch_size, split='train', aug='twice', shuffle=True, target_list=range(args.n_labeled_classes, args.n_labeled_classes+args.n_clusters))
     eval_loader = CIFAR10Loader(root=args.dataset_root, batch_size=args.batch_size, split='train', aug=None, shuffle=False, target_list=range(args.n_labeled_classes, args.n_labeled_classes+args.n_clusters))
 
+
+    print("Dataset length: ", len(train_loader.dataset))
+
     model = ResNet(BasicBlock, [2,2,2,2], 5).to(device)
     model.load_state_dict(torch.load(args.pretrain_dir), strict=False)
     model.linear= Identity()
