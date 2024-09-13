@@ -60,7 +60,6 @@ def warmup_train(model, train_loader, eva_loader, args):
             optimizer.zero_grad()
             loss.backward()
             optimizer.step()
-            print(label.shape)
         print('Warmup_train Epoch: {} Avg Loss: {:.4f}'.format(epoch, loss_record.avg))
         _, _, _, probs = test(model, eva_loader, args)
     args.p_targets = target_distribution(probs) 
