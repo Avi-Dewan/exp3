@@ -95,6 +95,7 @@ def discriminator_train_step(discriminator, generator, d_optimizer, criterion,
     # train with real images
     real_validity = discriminator(real_images, labels).squeeze(dim=1)
 
+    print("chnage check")
     # loss for real images
     d_loss = criterion(real_validity, Variable(torch.ones(batch_size)).to(device))
 
