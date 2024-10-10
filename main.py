@@ -191,13 +191,15 @@ for epoch in range(args.n_epochs_training):
     gen_labels = Variable(torch.LongTensor(np.arange(args.n_classes))).to(args.device)
 
     gen_imgs = generator(z, gen_labels).view(-1, 3, args.img_size, args.img_size)
-    save_image(gen_imgs.data, os.path.join(args.img_training_path, f'epoch_{epoch:02d}.png'), nrow=args.n_classes, normalize=True)
-    torch.save(classifier.state_dict(), os.path.join(args.models_training_path, f'{epoch:02d}_cls.pth'))
-    torch.save(generator.state_dict(), os.path.join(args.models_training_path, f'{epoch:02d}_gen.pth'))
-    torch.save(discriminator.state_dict(), os.path.join(args.models_training_path, f'{epoch:02d}_dis.pth'))
+
+    if epoch == args.n_epochs_training - 1:
+        save_image(gen_imgs.data, os.path.join(args.img_training_path, f'epoch_{epoch:02d}.png'), nrow=args.n_classes, normalize=True)
+        torch.save(classifier.state_dict(), os.path.join(args.models_training_path, f'{epoch:02d}_cls.pth'))
+        torch.save(generator.state_dict(), os.path.join(args.models_training_path, f'{epoch:02d}_gen.pth'))
+        torch.save(discriminator.state_dict(), os.path.join(args.models_training_path, f'{epoch:02d}_dis.pth'))
 
     print(f"[D loss: {np.mean(d_loss_list)}] [G loss: {np.mean(g_loss_list)}] [C loss: {np.mean(c_loss_list)}]")
-print('Finished Training GAN')
+print('Finished Pre Training GAN')
 print('\n')
 
 # --------------------

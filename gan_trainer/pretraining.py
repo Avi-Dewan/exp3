@@ -248,9 +248,12 @@ def gan_pretraining(generator, discriminator, classifier, loader_train,
             gen_labels = Variable(torch.LongTensor(np.arange(n_classes))).to(device)
 
             gen_imgs = generator(latent_space, gen_labels).view(-1, 3, img_size, img_size)
-            save_image(gen_imgs.data, img_pretraining_path + f'/epoch_{epoch:02d}.png', nrow=n_classes, normalize=True)
-            torch.save(generator.state_dict(), models_pretraining_path + f'/{epoch:02d}_gen.pth')
-            torch.save(discriminator.state_dict(), models_pretraining_path + f'/{epoch:02d}_dis.pth')
+
+            if epoch == n_epochs - 1:
+
+                save_image(gen_imgs.data, img_pretraining_path + f'/epoch_{epoch:02d}.png', nrow=n_classes, normalize=True)
+                torch.save(generator.state_dict(), models_pretraining_path + f'/{epoch:02d}_gen.pth')
+                torch.save(discriminator.state_dict(), models_pretraining_path + f'/{epoch:02d}_dis.pth')
 
             print(f"[D loss: {np.mean(d_loss_list)}] [G loss: {np.mean(g_loss_list)}]")
         print('Finished Training GAN')
