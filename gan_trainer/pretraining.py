@@ -135,7 +135,7 @@ def classifier_pretraining(args, train_loader, eval_loader):
     model.center = Parameter(model_dict['center'])
 
     test(model, eval_loader, args)
-    pseudoLabels = getPsedoLabels(model, train_loader, args)
+    # pseudoLabels = getPsedoLabels(model, train_loader, args)
 
     # classifier = ResNet(BasicBlock, [2,2,2,2], args.n_classes).to(args.device)
 
