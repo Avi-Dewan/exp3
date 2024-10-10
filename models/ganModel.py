@@ -37,6 +37,8 @@ class Discriminator(nn.Module):
         super().__init__()
 
         self.label_embedding = nn.Embedding(classes, classes)
+        self.img_size = img_size
+        self.classes = classes
 
         def discriminator_block(in_filters, out_filters, bn=True):
             """Returns layers of each discriminator block"""
@@ -46,7 +48,7 @@ class Discriminator(nn.Module):
             return block
 
         self.conv_blocks = nn.Sequential(
-            *discriminator_block(channels + 1, 64, bn=False),
+            *discriminator_block(channels + classes, 64, bn=False),
             *discriminator_block(64, 128),
             *discriminator_block(128, 256),
             *discriminator_block(256, 512),
@@ -58,7 +60,8 @@ class Discriminator(nn.Module):
 
     def forward(self, img, labels):
         # Concatenate image and label condition
-        labels = self.label_embedding(labels).view(labels.size(0), 1, 32, 32)
+        labels = self.label_embedding(labels)
+        labels = labels.unsqueeze(-1).unsqueeze(-1).expand(img.size(0), self.classes, self.img_size, self.img_size)
         d_in = torch.cat((img, labels), 1)
         out = self.conv_blocks(d_in)
         out = out.view(out.size(0), -1)
