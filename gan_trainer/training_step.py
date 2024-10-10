@@ -93,7 +93,7 @@ def discriminator_train_step(discriminator, generator, d_optimizer, criterion,
     batch_size = len(real_images)
 
     # train with real images
-    real_validity = discriminator(real_images, labels)
+    real_validity = discriminator(real_images, labels).squeeze(dim=1)
 
     # loss for real images
     d_loss = criterion(real_validity, Variable(torch.ones(batch_size)).to(device))
@@ -102,7 +102,7 @@ def discriminator_train_step(discriminator, generator, d_optimizer, criterion,
     generator_input = Variable(torch.randn(batch_size, latent_dim)).to(device)
     fake_labels = Variable(torch.LongTensor(np.random.randint(0, n_classes, batch_size))).to(device)
     fake_images = generator(generator_input, fake_labels)
-    fake_validity = discriminator(fake_images, fake_labels)
+    fake_validity = discriminator(fake_images, fake_labels).squeeze(dim=1)
 
     # loss for fake images
     d_loss += criterion(fake_validity, Variable(torch.zeros(batch_size)).to(device))
