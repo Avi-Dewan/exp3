@@ -170,7 +170,9 @@ for epoch in range(args.n_epochs_training):
         # Step 7: Infer labels using classifier
         # x = classifier(real_images)
         # print(x.shape) -> [128, 5]
-        _, labels_classifier = torch.max(classifier(real_images), dim=1)
+        feat = classifier(real_images)
+        prob = feat2prob(feat, classifier.center)
+        _, labels_classifier = torch.max(prob)
 
         # print(labels_classifier.shape) -> [128]
 
