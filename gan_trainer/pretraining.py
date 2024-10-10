@@ -137,35 +137,35 @@ def classifier_pretraining(args, train_loader, eval_loader):
     test(model, eval_loader, args)
     pseudoLabels = getPsedoLabels(model, train_loader, args)
 
-    classifier = ResNet(BasicBlock, [2,2,2,2], args.n_classes).to(args.device)
+    # classifier = ResNet(BasicBlock, [2,2,2,2], args.n_classes).to(args.device)
 
-    # Define the loss function and optimizer
-    criterion = nn.CrossEntropyLoss().to(args.device)
-    optimizer = optim.Adam(classifier.parameters(), lr=args.lr_cls_pretraining)
+    # # Define the loss function and optimizer
+    # criterion = nn.CrossEntropyLoss().to(args.device)
+    # optimizer = optim.Adam(classifier.parameters(), lr=args.lr_cls_pretraining)
 
-    optimizer = optim.SGD(classifier.parameters(), lr=args.lr_cls_pretraining, momentum=args.momentum, weight_decay=args.weight_decay)
+    # optimizer = optim.SGD(classifier.parameters(), lr=args.lr_cls_pretraining, momentum=args.momentum, weight_decay=args.weight_decay)
 
-    # Convert pseudoLabels to a tensor and move it to the device
-    pseudoLabels = torch.from_numpy(pseudoLabels).long().to(args.device)
+    # # Convert pseudoLabels to a tensor and move it to the device
+    # pseudoLabels = torch.from_numpy(pseudoLabels).long().to(args.device)
 
-    # Training loop
-    for epoch in range(args.n_epochs_cls_pretraining):
+    # # Training loop
+    # for epoch in range(args.n_epochs_cls_pretraining):
 
-        loss_record = AverageMeter()
+    #     loss_record = AverageMeter()
 
-        for i, ((images, _), _, _) in enumerate(tqdm(train_loader)):
-            images = images.to(args.device)
-            psuedoLabel = pseudoLabels[i*args.batch_size:(i+1)*args.batch_size]
+    #     for i, ((images, _), _, _) in enumerate(tqdm(train_loader)):
+    #         images = images.to(args.device)
+    #         psuedoLabel = pseudoLabels[i*args.batch_size:(i+1)*args.batch_size]
 
-            loss = classifier_train_step(classifier, images, optimizer, criterion, psuedoLabel)
+    #         loss = classifier_train_step(classifier, images, optimizer, criterion, psuedoLabel)
 
-            loss_record.update(loss, images.size(0))
+    #         loss_record.update(loss, images.size(0))
 
-        print(f'Epoch: {epoch} / {args.n_epochs_cls_pretraining}: Avg loss: {loss_record.avg}')
+    #     print(f'Epoch: {epoch} / {args.n_epochs_cls_pretraining}: Avg loss: {loss_record.avg}')
 
    
         
-    return classifier
+    return model
 
 
 def gan_pretraining(generator, discriminator, classifier, loader_train,
@@ -224,8 +224,13 @@ def gan_pretraining(generator, discriminator, classifier, loader_train,
             d_loss_list = []
             for i, ((images, _), _, _) in enumerate(loader_train):
 
+                # real_images = Variable(images).to(device)
+                # _, labels = torch.max(classifier(real_images), dim=1)
+
                 real_images = Variable(images).to(device)
-                _, labels = torch.max(classifier(real_images), dim=1)
+                feat = classifier(real_images)
+                prob = feat2prob(feat, classifier.center)
+                _, labels = prob.max(1)
 
                 generator.train()
 
