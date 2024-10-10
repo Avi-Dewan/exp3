@@ -199,7 +199,7 @@ for epoch in range(args.n_epochs_training):
         torch.save(discriminator.state_dict(), os.path.join(args.models_training_path, f'{epoch:02d}_dis.pth'))
 
     print(f"[D loss: {np.mean(d_loss_list)}] [G loss: {np.mean(g_loss_list)}] [C loss: {np.mean(c_loss_list)}]")
-print('Finished Pre Training GAN')
+print('Finished Training GAN')
 print('\n')
 
 # --------------------

@@ -217,7 +217,7 @@ def gan_pretraining(generator, discriminator, classifier, loader_train,
         loaded_dis = True
 
     if not(loaded_gen and loaded_dis):
-        print('Starting Training GAN')
+        print('Starting Pre Training GAN')
         for epoch in range(n_epochs):
             print(f'Starting epoch {epoch}/{n_epochs}...', end=' ')
             g_loss_list = []
@@ -256,7 +256,7 @@ def gan_pretraining(generator, discriminator, classifier, loader_train,
                 torch.save(discriminator.state_dict(), models_pretraining_path + f'/{epoch:02d}_dis.pth')
 
             print(f"[D loss: {np.mean(d_loss_list)}] [G loss: {np.mean(g_loss_list)}]")
-        print('Finished Training GAN')
+        print('Finished Pre Training GAN')
         print('\n')
 
 
