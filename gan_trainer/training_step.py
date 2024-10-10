@@ -63,7 +63,7 @@ def generator_train_step(discriminator, generator, g_optimizer, criterion,
     # print(labels.shape)
     fake_images = generator(generator_input, labels)
 
-    validity = discriminator(fake_images, labels)
+    validity = discriminator(fake_images, labels).squeeze(dim=1)
 
     g_loss = criterion(validity, Variable(torch.ones(batch_size)).to(device))
     g_loss.backward()
@@ -95,7 +95,7 @@ def discriminator_train_step(discriminator, generator, d_optimizer, criterion,
     # train with real images
     real_validity = discriminator(real_images, labels).squeeze(dim=1)
 
-    print("chnage check")
+    # print("chnage check")
     # loss for real images
     d_loss = criterion(real_validity, Variable(torch.ones(batch_size)).to(device))
 
