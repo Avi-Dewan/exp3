@@ -55,7 +55,7 @@ parser.add_argument('--batch_size', type=int, default=128)
 parser.add_argument('--verbose', type=str, default=False, help='Verbose mode')
 
 # GPU
-parser.add_argument('--device', type=str, default='cuda', choices=['cuda', 'cpu'])
+parser.add_argument('--device', type=str, default='cpu', choices=['cuda', 'cpu'])
 
 # Number of classes
 parser.add_argument('--n_classes', type=int, default=5)
@@ -67,16 +67,16 @@ parser.add_argument('--momentum', type=float, default=0.9)
 parser.add_argument('--weight_decay', type=float, default=1e-4)
 
 # GAN pretraining parameters
-parser.add_argument('--latent_dim', type=int, default=100)
+parser.add_argument('--latent_dim', type=int, default=128)
 parser.add_argument('--lr_d_pretraining', type=float, default=1e-4)
 parser.add_argument('--lr_g_pretraining', type=float, default=1e-4)
-parser.add_argument('--n_epochs_gan_pretraining', type=int, default=30)
+parser.add_argument('--n_epochs_gan_pretraining', type=int, default=1)
 
 # Training parameters
 parser.add_argument('--lr_cls_training', type=float, default=1e-4)
 parser.add_argument('--lr_d_training', type=float, default=1e-4)
 parser.add_argument('--lr_g_training', type=float, default=1e-4)
-parser.add_argument('--n_epochs_training', type=int, default=20)
+parser.add_argument('--n_epochs_training', type=int, default=0)
 
 # Paths
 parser.add_argument('--results_path', type=str, default='./results')
@@ -103,9 +103,9 @@ eval_loader = CIFAR10Loader(root=args.data_path, batch_size=args.batch_size, spl
 # Classifier pretraining 
 
 classifier = classifier_pretraining(args, train_loader, eval_loader)
-init_acc, init_nmi, init_ari = test(classifier, eval_loader, args)
+# init_acc, init_nmi, init_ari = test(classifier, eval_loader, args)
 
-print('Init ACC {:.4f}, NMI {:.4f}, ARI {:.4f}'.format(init_acc, init_nmi, init_ari))
+# print('Init ACC {:.4f}, NMI {:.4f}, ARI {:.4f}'.format(init_acc, init_nmi, init_ari))
 
 
 # if args.verbose:

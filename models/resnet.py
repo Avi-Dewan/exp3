@@ -67,7 +67,7 @@ class BasicBlock(nn.Module):
 
         if self.is_padding:
             shortcut = self.shortcut(x)
-            out += torch.cat([shortcut,torch.zeros(shortcut.shape).type(torch.cuda.FloatTensor)],1)
+            out += torch.cat([shortcut,torch.zeros(shortcut.shape).type(torch.FloatTensor)],1)
         else:
             out += self.shortcut(x)
         out = F.relu(out)

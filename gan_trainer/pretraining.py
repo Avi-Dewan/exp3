@@ -129,7 +129,7 @@ def getPsedoLabels(model, train_loader, args):
 
 def classifier_pretraining(args, train_loader, eval_loader):
     # Classifier pretraining on source data
-    model_dict = torch.load(args.cls_pretraining_path)
+    model_dict = torch.load(args.cls_pretraining_path, map_location=args.device)
     model = ResNet(BasicBlock, [2,2,2,2], args.n_classes).to(args.device)
     model.load_state_dict(model_dict['state_dict'], strict=False)
     model.center = Parameter(model_dict['center'])
@@ -224,7 +224,7 @@ def gan_pretraining(generator, discriminator, classifier, loader_train,
             print(f'Starting epoch {epoch}/{n_epochs}...', end=' ')
             g_loss_list = []
             d_loss_list = []
-            for i, ((images, _), _, _) in enumerate(loader_train):
+            for i, ((images, _), _, _) in enumerate(tqdm(loader_train)):
 
                 # real_images = Variable(images).to(device)
                 # _, labels = torch.max(classifier(real_images), dim=1)
