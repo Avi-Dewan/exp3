@@ -22,58 +22,6 @@ from sklearn.metrics.cluster import normalized_mutual_info_score as nmi_score
 from sklearn.metrics import adjusted_rand_score as ari_score
 from utils.util import cluster_acc, Identity, AverageMeter, seed_torch, str2bool
 
-
-
-# def cls_pretraining(classifier, loader_train, loader_test, learning_rate, n_epochs, results_path):
-#     """
-
-#     Args:
-#         classifier (TYPE):
-#         loader_train (TYPE):
-#         loader_test (TYPE):
-#         learning_rate (TYPE):
-#         n_epochs (TYPE):
-#         results_path (TYPE):
-
-#     Returns:
-#         Trained classifier on loader
-#     """
-
-#     # Pretraining paths
-#     cls_pretrained_path = ''.join([results_path, '/cls_pretrained.pth'])
-
-#     device = next(classifier.parameters()).device
-
-#     criterion = nn.CrossEntropyLoss().to(device)
-#     optimizer = optim.Adam(classifier.parameters(), lr=learning_rate)
-
-#     os.makedirs(results_path, exist_ok=True)
-
-#     if os.path.isfile(cls_pretrained_path):
-#         classifier.load_state_dict(torch.load(cls_pretrained_path))
-#         print('loaded existing model')
-
-#     else:
-#         print('Starting Training classifier')
-#         for epoch in range(n_epochs):  # loop over the dataset multiple times
-#             running_loss = 0.0
-
-#             for inputs, labels in loader_train:
-#                 inputs, labels = inputs.to(device), labels.to(device)
-#                 loss = classifier_train_step(classifier, inputs, optimizer, criterion, labels)
-#                 running_loss += loss
-
-#             print(f'Epoch: {epoch} || loss: {running_loss}')
-#             if (epoch + 1) % 10 == 0:
-#                 print(f'Test accuracy: {100*accuracy(classifier, loader_test):.2f}%')
-#         print('Finished Training classifier')
-#         print('\n')
-
-#     print('Results:')
-#     print(f'Test accuracy: {100*accuracy(classifier, loader_test):.2f}%')
-#     torch.save(classifier.state_dict(), cls_pretrained_path)
-
-#     return classifier
 def test(model, test_loader, args, tsne=False):
     model.eval()
     preds=np.array([])
@@ -133,39 +81,6 @@ def classifier_pretraining(args, train_loader, eval_loader):
     model = ResNet(BasicBlock, [2,2,2,2], args.n_classes).to(args.device)
     model.load_state_dict(model_dict['state_dict'], strict=False)
     model.center = Parameter(model_dict['center'])
-
-    # test(model, eval_loader, args)
-    # pseudoLabels = getPsedoLabels(model, train_loader, args)
-
-    
-
-    # classifier = ResNet(BasicBlock, [2,2,2,2], args.n_classes).to(args.device)
-
-    # # Define the loss function and optimizer
-    # criterion = nn.CrossEntropyLoss().to(args.device)
-    # optimizer = optim.Adam(classifier.parameters(), lr=args.lr_cls_pretraining)
-
-    # optimizer = optim.SGD(classifier.parameters(), lr=args.lr_cls_pretraining, momentum=args.momentum, weight_decay=args.weight_decay)
-
-    # # Convert pseudoLabels to a tensor and move it to the device
-    # pseudoLabels = torch.from_numpy(pseudoLabels).long().to(args.device)
-
-    # # Training loop
-    # for epoch in range(args.n_epochs_cls_pretraining):
-
-    #     loss_record = AverageMeter()
-
-    #     for i, ((images, _), _, _) in enumerate(tqdm(train_loader)):
-    #         images = images.to(args.device)
-    #         psuedoLabel = pseudoLabels[i*args.batch_size:(i+1)*args.batch_size]
-
-    #         loss = classifier_train_step(classifier, images, optimizer, criterion, psuedoLabel)
-
-    #         loss_record.update(loss, images.size(0))
-
-    #     print(f'Epoch: {epoch} / {args.n_epochs_cls_pretraining}: Avg loss: {loss_record.avg}')
-
-   
         
     return model
 

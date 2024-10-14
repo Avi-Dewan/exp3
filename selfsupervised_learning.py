@@ -31,23 +31,23 @@ def train(model, device, train_loader, optimizer, scheduler, criterion, epoch, t
     tr_loss_epoch = 0
 
     for step, (data, label) in enumerate(tqdm(train_loader)):
-        x_i, x_j = data[0], data[1]
-        x_i, x_j = x_i.squeeze().to(device).float(), x_j.squeeze().to(device).float()
+        x_i, x_j = data[0], data[1] #data is a tuple of two images
+        x_i, x_j = x_i.squeeze().to(device).float(), x_j.squeeze().to(device).float() #squeeze to remove the extra dimension
         
         optimizer.zero_grad()
-        z_i, z_j = model(x_i), model(x_j)
-        loss = criterion(z_i, z_j)
-        loss.backward()
-        optimizer.step()
+        z_i, z_j = model(x_i), model(x_j) #forward pass
+        loss = criterion(z_i, z_j) #calculate loss
+        loss.backward() #backprop
+        optimizer.step() #update weights
 
-        if step % 50 == 0:
+        if step % 50 == 0: #print loss every 50 steps
             print(f"Step [{step}/{len(train_loader)}] Loss: {round(loss.item(), 5)}")
         
-        tr_loss_epoch += loss.item()
+        tr_loss_epoch += loss.item() #accumulate loss
 
-    scheduler.step()
-    lr = optimizer.param_groups[0]["lr"]
-    avg_tr_loss = tr_loss_epoch / len(train_loader)
+    scheduler.step() #update learning rate
+    lr = optimizer.param_groups[0]["lr"] #get learning rate
+    avg_tr_loss = tr_loss_epoch / len(train_loader) #average loss
     print(f"Epoch [{epoch}/{total_epochs}] Training Loss: {avg_tr_loss:.4f} Learning Rate: {round(lr, 5)}")
     return avg_tr_loss
 
@@ -57,17 +57,17 @@ def test(model, device, valid_loader, criterion, epoch, total_epochs):
     
     with torch.no_grad():
         for step, (data, label) in enumerate(tqdm(valid_loader)):
-            x_i, x_j = data[0], data[1]
-            x_i, x_j = x_i.squeeze().to(device).float(), x_j.squeeze().to(device).float()
-            z_i, z_j = model(x_i), model(x_j)
-            loss = criterion(z_i, z_j)
+            x_i, x_j = data[0], data[1] #data is a tuple of two images
+            x_i, x_j = x_i.squeeze().to(device).float(), x_j.squeeze().to(device).float() #squeeze to remove the extra dimension
+            z_i, z_j = model(x_i), model(x_j) #forward pass
+            loss = criterion(z_i, z_j) #calculate loss
 
-            if step % 50 == 0:
-                print(f"Step [{step}/{len(valid_loader)}] Loss: {round(loss.item(), 5)}")
+            if step % 50 == 0: #print loss every 50 steps
+                print(f"Step [{step}/{len(valid_loader)}] Loss: {round(loss.item(), 5)}") 
 
-            val_loss_epoch += loss.item()
+            val_loss_epoch += loss.item() #accumulate loss
     
-    avg_val_loss = val_loss_epoch / len(valid_loader)
+    avg_val_loss = val_loss_epoch / len(valid_loader) #average loss
     print(f"Epoch [{epoch}/{total_epochs}] Validation Loss: {avg_val_loss:.4f}")
     return avg_val_loss
 
@@ -98,16 +98,16 @@ def load_model(model, optimizer, scheduler, path, device):
 def plot_features(model, test_loader, save_path, epoch, device,  args):
     model.eval()
     
-    targets=np.array([])
+    targets=np.array([]) #store the labels
     outputs = np.zeros((len(test_loader.dataset), 
-                      512 * BasicBlock.expansion)) 
+                      512 * BasicBlock.expansion)) #512 is the output size of the resnet18 model
     
     for batch_idx, (x, label, idx) in enumerate(tqdm(test_loader)):
-        x, label = x.to(device), label.to(device)
-        output = model(x)
+        x, label = x.to(device), label.to(device) 
+        output = model(x) #forward pass
        
-        outputs[idx, :] = output.cpu().detach().numpy()
-        targets=np.append(targets, label.cpu().numpy())
+        outputs[idx, :] = output.cpu().detach().numpy() #store the output
+        targets=np.append(targets, label.cpu().numpy()) #store the labels
 
    
     
@@ -117,7 +117,7 @@ def plot_features(model, test_loader, save_path, epoch, device,  args):
     X_embedded = TSNE(n_components=2).fit_transform(outputs)  # Use meaningful features for t-SNE
 
     plt.figure(figsize=(8, 6))
-    plt.scatter(X_embedded[:, 0], X_embedded[:, 1], c=targets, cmap='viridis')
+    plt.scatter(X_embedded[:, 0], X_embedded[:, 1], c=targets, cmap='viridis') # Visualize t-SNE
     plt.title("t-SNE Visualization of unlabeled Features on " + args.dataset_name + " unlabelled set - epoch" + str(epoch))
     plt.savefig(save_path+ '/' + args.dataset_name + '_epoch'+ str(epoch) + '.png')
 
@@ -170,12 +170,12 @@ def main():
         dataset_name=args.dataset_name,
         split='train',
         dataset_root=args.dataset_root
-       )
+       ) #train dataset
     dataset_test = SimCLRDataset(
         dataset_name=args.dataset_name,
         split='test',
         dataset_root=args.dataset_root
-        )
+        ) #test dataset
     
 
     dloader_train = DataLoader(
@@ -183,15 +183,15 @@ def main():
         batch_size=args.batch_size,
         num_workers=args.num_workers,
         shuffle=True,
-        drop_last=True)
+        drop_last=True) #train dataloader
     
 
     dloader_test = DataLoader(
         dataset=dataset_test,
         batch_size=args.batch_size,
         num_workers=args.num_workers,
-        shuffle=False,
-        drop_last=True)
+        shuffle=False, 
+        drop_last=True) #test dataloader
 
     dloader_unlabeled_test = CIFAR10Loader(
         root=args.dataset_root, 
@@ -199,7 +199,7 @@ def main():
         split='test', 
         aug=None, 
         shuffle=False, 
-        target_list = range(5, 10))
+        target_list = range(5, 10)) #unlabeled test dataloader
    
     num_blocks = [2, 2, 2, 2]  # Example for ResNet-18
     model = PreModel(BasicBlock, num_blocks)
@@ -237,9 +237,9 @@ def main():
         print(f"Epoch [{epoch}/{args.epochs}]")
         stime = time.time()
 
-        if epoch < 10:
-            scheduler = warmupscheduler
-        else:
+        if epoch < 10: #warmup for the first 10 epochs
+            scheduler = warmupscheduler 
+        else: #cosine decay after 10 epochs
             scheduler = mainscheduler
 
         # Train
