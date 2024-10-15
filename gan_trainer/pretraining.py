@@ -148,13 +148,13 @@ def gan_pretraining(generator, discriminator, classifier, loader_train,
                 # real_images = Variable(images).to(device)
                 # _, labels = torch.max(classifier(real_images), dim=1)
 
-                # real_images = Variable(images).to(device)
-                # feat = classifier(real_images)
-                # prob = feat2prob(feat, classifier.center)
-                # _, labels = prob.max(1)
-
                 real_images = Variable(images).to(device)
-                labels = (targets - 5).to(device)
+                feat = classifier(real_images)
+                prob = feat2prob(feat, classifier.center)
+                _, labels = prob.max(1)
+
+                # real_images = Variable(images).to(device)
+                # labels = (targets - 5).to(device)
 
                 generator.train()
 

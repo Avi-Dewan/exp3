@@ -55,7 +55,7 @@ parser.add_argument('--batch_size', type=int, default=128)
 parser.add_argument('--verbose', type=str, default=False, help='Verbose mode')
 
 # GPU
-parser.add_argument('--device', type=str, default='cpu', choices=['cuda', 'cpu'])
+parser.add_argument('--device', type=str, default='cuda', choices=['cuda', 'cpu'])
 
 # Number of classes
 parser.add_argument('--n_classes', type=int, default=5)
