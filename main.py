@@ -82,7 +82,7 @@ parser.add_argument('--n_epochs_training', type=int, default=0)
 parser.add_argument('--results_path', type=str, default='./results')
 parser.add_argument('--pretraining_path', type=str, default='./results/pretraining')
 parser.add_argument('--training_path', type=str, default='./results/training')
-parser.add_argument('--cls_pretraining_path', type=str, default='./results/pretraining/classifier_pretrained.pth')
+parser.add_argument('--cls_pretraining_path', type=str, default='./pretrained/resnet18.pth')
 
 args = parser.parse_args()
 args.device = torch.device("cuda" if args.device == 'cuda' and torch.cuda.is_available() else 'cpu')
