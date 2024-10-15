@@ -3,67 +3,91 @@ import torch.nn as nn
 
 class Generator(nn.Module):
     def __init__(self, classes=10, latent_dim=100, img_size=32, channels=3):
-        super().__init__()
+        super(Generator, self).__init__()
 
-        self.label_emb = nn.Embedding(classes, classes)
+        self.img_size = img_size
+        self.channels = channels
 
-        self.init_size = img_size // 4  # Initial size before upsampling
-        self.l1 = nn.Sequential(nn.Linear(latent_dim + classes, 128 * self.init_size ** 2))
+        # Label embedding to project class labels into latent space
+        self.label_embedding = nn.Embedding(classes, 50)
 
+        # Fully connected layer for latent vector and label
+        self.fc1 = nn.Sequential(
+            nn.Linear(latent_dim + 50, 128 * 8 * 8),  # (latent_dim + label embedding size) -> 8x8x128
+            nn.LeakyReLU(0.2, inplace=True),
+        )
+
+        # Transpose convolutions to upsample the image from 8x8 to 32x32
         self.conv_blocks = nn.Sequential(
-            nn.BatchNorm2d(128),
-            nn.Upsample(scale_factor=2),
-            nn.Conv2d(128, 128, 3, stride=1, padding=1),
-            nn.BatchNorm2d(128, 0.8),
+            nn.ConvTranspose2d(128, 128, kernel_size=4, stride=2, padding=1),  # 8x8 -> 16x16
             nn.LeakyReLU(0.2, inplace=True),
-            nn.Upsample(scale_factor=2),
-            nn.Conv2d(128, 64, 3, stride=1, padding=1),
-            nn.BatchNorm2d(64, 0.8),
+            nn.ConvTranspose2d(128, 128, kernel_size=4, stride=2, padding=1),  # 16x16 -> 32x32
             nn.LeakyReLU(0.2, inplace=True),
-            nn.Conv2d(64, channels, 3, stride=1, padding=1),
-            nn.Tanh()
+            # Adjusting final layer to ensure output is 32x32
+            nn.Conv2d(128, channels, kernel_size=3, padding=1),  # Output is [channels, img_size, img_size]
+            nn.Tanh()  # Output normalized between [-1, 1]
         )
 
     def forward(self, noise, labels):
-        # Concatenate label embedding and noise to form input
-        gen_input = torch.cat((noise, self.label_emb(labels)), -1)
-        out = self.l1(gen_input)
-        out = out.view(out.size(0), 128, self.init_size, self.init_size)
+        # Embed the labels and concatenate them with the latent vector
+        label_embedding = self.label_embedding(labels)
+        gen_input = torch.cat((noise, label_embedding), dim=1)
+
+        # Transform the concatenated latent vector and labels to an 8x8x128 feature map
+        out = self.fc1(gen_input)
+        out = out.view(out.size(0), 128, 8, 8)
+
+        # Pass the feature map through transpose convolutions to generate the final image
         img = self.conv_blocks(out)
+        # print("Generator img shape: ", img.shape)
         return img
+
 
 class Discriminator(nn.Module):
     def __init__(self, classes=10, img_size=32, channels=3):
-        super().__init__()
+        super(Discriminator, self).__init__()
 
-        self.label_embedding = nn.Embedding(classes, classes)
         self.img_size = img_size
-        self.classes = classes
+        self.channels = channels
 
-        def discriminator_block(in_filters, out_filters, bn=True):
-            """Returns layers of each discriminator block"""
-            block = [nn.Conv2d(in_filters, out_filters, 3, stride=2, padding=1), nn.LeakyReLU(0.2, inplace=True), nn.Dropout2d(0.25)]
-            if bn:
-                block.append(nn.BatchNorm2d(out_filters, 0.8))
-            return block
+        # Label embedding to project class labels into image space
+        self.label_embedding = nn.Embedding(classes, 50)
 
-        self.conv_blocks = nn.Sequential(
-            *discriminator_block(channels + classes, 64, bn=False),
-            *discriminator_block(64, 128),
-            *discriminator_block(128, 256),
-            *discriminator_block(256, 512),
+        # Label projection to image dimensions
+        self.label_dense = nn.Sequential(
+            nn.Linear(50, img_size * img_size),  # Convert label embedding to match image size (32x32)
+            nn.LeakyReLU(0.2, inplace=True)
         )
 
-        # The height and width of downsampled image
-        ds_size = img_size // 2 ** 4
-        self.adv_layer = nn.Sequential(nn.Linear(512 * ds_size ** 2, 1), nn.Sigmoid())
+        # Convolutional blocks for downsampling the image
+        self.conv_blocks = nn.Sequential(
+            nn.Conv2d(channels + 1, 128, kernel_size=3, stride=2, padding=1),  # 32x32 -> 16x16
+            nn.LeakyReLU(0.2, inplace=True),
+            nn.Conv2d(128, 128, kernel_size=3, stride=2, padding=1),  # 16x16 -> 8x8
+            nn.LeakyReLU(0.2, inplace=True),
+            nn.Flatten(),  # 8x8x128 -> 8192
+            nn.Dropout(0.4),
+            nn.Linear(128 * 8 * 8, 1),  # Final output is a single value (binary classification)
+            nn.Sigmoid()  # Output is a probability (real or fake)
+        )
 
     def forward(self, img, labels):
-        # Concatenate image and label condition
-        labels = self.label_embedding(labels)
-        labels = labels.unsqueeze(-1).unsqueeze(-1).expand(img.size(0), self.classes, self.img_size, self.img_size)
-        d_in = torch.cat((img, labels), 1)
-        out = self.conv_blocks(d_in)
-        out = out.view(out.size(0), -1)
-        validity = self.adv_layer(out)
+        
+        # print("img shape: ", img.shape)
+        # print("labels shape: ", labels.shape)
+
+        # Embed the labels and project them into the image space
+        label_embedding = self.label_embedding(labels)
+        label_projection = self.label_dense(label_embedding)
+        label_projection = label_projection.view(label_projection.size(0), 1, self.img_size, self.img_size)
+
+        # print("label projection shape: ", label_projection.shape)
+
+        # Concatenate the image with the label projection along the channel dimension
+        d_in = torch.cat((img, label_projection), dim=1)
+
+        # print("d_in shape: ", d_in.shape)
+
+        # Pass the concatenated input through convolutional blocks
+        validity = self.conv_blocks(d_in)
         return validity
