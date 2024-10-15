@@ -4,6 +4,7 @@ Pretraining functions for classifier and GAN
 import os
 
 import numpy as np
+import matplotlib.pyplot as plt
 
 import torch
 from tqdm import tqdm
@@ -133,21 +134,27 @@ def gan_pretraining(generator, discriminator, classifier, loader_train,
         print('loaded existing discriminator')
         loaded_dis = True
 
+
     if not(loaded_gen and loaded_dis):
         print('Starting Pre Training GAN')
+        g_loss_epochs = []
+        d_loss_epochs = []
         for epoch in range(n_epochs):
             print(f'Starting epoch {epoch}/{n_epochs}...', end=' ')
             g_loss_list = []
             d_loss_list = []
-            for i, ((images, _), _, _) in enumerate(tqdm(loader_train)):
+            for batch_idx, ((images, _), targets, _) in enumerate(tqdm(loader_train)):
 
                 # real_images = Variable(images).to(device)
                 # _, labels = torch.max(classifier(real_images), dim=1)
 
+                # real_images = Variable(images).to(device)
+                # feat = classifier(real_images)
+                # prob = feat2prob(feat, classifier.center)
+                # _, labels = prob.max(1)
+
                 real_images = Variable(images).to(device)
-                feat = classifier(real_images)
-                prob = feat2prob(feat, classifier.center)
-                _, labels = prob.max(1)
+                labels = (targets - 5).to(device)
 
                 generator.train()
 
@@ -166,13 +173,26 @@ def gan_pretraining(generator, discriminator, classifier, loader_train,
 
             gen_imgs = generator(latent_space, gen_labels).view(-1, 3, img_size, img_size)
 
+
+            print(f"[D loss: {np.mean(d_loss_list)}] [G loss: {np.mean(g_loss_list)}]")
+            g_loss_epochs.append(np.mean(g_loss_list))
+            d_loss_epochs.append(np.mean(d_loss_list))
+
             if epoch == n_epochs - 1:
 
                 save_image(gen_imgs.data, img_pretraining_path + f'/epoch_{epoch:02d}.png', nrow=n_classes, normalize=True)
                 torch.save(generator.state_dict(), models_pretraining_path + f'/{epoch:02d}_gen.pth')
                 torch.save(discriminator.state_dict(), models_pretraining_path + f'/{epoch:02d}_dis.pth')
 
-            print(f"[D loss: {np.mean(d_loss_list)}] [G loss: {np.mean(g_loss_list)}]")
+                plt.figure(figsize=(10, 5))
+                plt.title("Generator and Discriminator Loss During Training")
+                plt.plot(g_loss_epochs,label="G_loss")
+                plt.plot(d_loss_epochs,label="D_loss")
+                plt.xlabel("epochs")
+                plt.ylabel("Loss")
+                plt.legend()
+                plt.savefig(os.path.join(img_pretraining_path, 'gan_loss.png'))
+
         print('Finished Pre Training GAN')
         print('\n')
 
