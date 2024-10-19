@@ -5,7 +5,7 @@ import numpy as np
 
 import torch
 from torch.autograd import Variable
-
+from utils.gan_loss import generator_loss, discriminator_loss
 
 def classifier_train_step(classifieur, inputs, optimizer, criterion, labels):
     """Summary
@@ -65,7 +65,14 @@ def generator_train_step(discriminator, generator, g_optimizer, criterion,
 
     validity = discriminator(fake_images, labels).squeeze(dim=1)
 
-    g_loss = criterion(validity, Variable(torch.ones(batch_size)).to(device))
+    # print("fake_images shape", fake_images.shape)
+    # print("validity shape ", validity.shape)
+    # g_loss = criterion(validity, Variable(torch.ones(batch_size)).to(device))
+
+    g_loss = generator_loss(validity)
+
+    # print("g_loss shape" , g_loss.shape)
+    # print("g_loss = ", g_loss)
     g_loss.backward()
     g_optimizer.step()
     return g_loss.item()
@@ -97,7 +104,7 @@ def discriminator_train_step(discriminator, generator, d_optimizer, criterion,
 
     # print("chnage check")
     # loss for real images
-    d_loss = criterion(real_validity, Variable(torch.ones(batch_size)).to(device))
+    # d_loss = criterion(real_validity, Variable(torch.ones(batch_size)).to(device))
 
     # train with fake images
     generator_input = Variable(torch.randn(batch_size, latent_dim)).to(device)
@@ -105,8 +112,19 @@ def discriminator_train_step(discriminator, generator, d_optimizer, criterion,
     fake_images = generator(generator_input, fake_labels)
     fake_validity = discriminator(fake_images, fake_labels).squeeze(dim=1)
 
+    # print("real image shape: ", real_images.shape)
+    # print("real validity shape: ", real_validity.shape)
+    # print("fake image shape: ", fake_images.shape)
+    # print("fake validity shape: ", fake_validity.shape)
+
     # loss for fake images
-    d_loss += criterion(fake_validity, Variable(torch.zeros(batch_size)).to(device))
+    # d_loss += criterion(fake_validity, Variable(torch.zeros(batch_size)).to(device))
+
+    d_loss_real, d_loss_fake = discriminator_loss(fake_validity, real_validity)
+    d_loss = d_loss_fake + d_loss_real
+
+    # print("d_loss shape: " , d_loss.shape)
+    # print("d_loss = ", d_loss)
 
     d_loss.backward()
     d_optimizer.step()
