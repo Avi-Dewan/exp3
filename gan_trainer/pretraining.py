@@ -182,14 +182,14 @@ def gan_pretraining(generator, discriminator, classifier, loader_train,
             n_images_per_class = 5
             z_.sample_()
             # Generate latent space and labels for each class
-            latent_space = z_[:(n_classes * n_images_per_class)]
+            latent_space = Variable(torch.randn(n_classes * n_images_per_class, latent_dim)).to(device)
             gen_labels = Variable(torch.LongTensor(np.repeat(np.arange(n_classes), n_images_per_class))).to(device)
 
-            print(latent_space)
-            print(gen_labels)
+            # Convert labels to one-hot encoding
+            gen_labels_one_hot = F.one_hot(gen_labels, num_classes=n_classes).float().to(device)
 
             # Generate images
-            gen_imgs = generator(latent_space, gen_labels)
+            gen_imgs = generator(latent_space, gen_labels_one_hot).view(-1, 3, img_size, img_size)
 
             # Print losses
             print(f"[D loss: {np.mean(d_loss_list)}] [G loss: {np.mean(g_loss_list)}]")
@@ -197,9 +197,11 @@ def gan_pretraining(generator, discriminator, classifier, loader_train,
             d_loss_epochs.append(np.mean(d_loss_list))
 
             if epoch == n_epochs - 1:
+                # Ensure images are in the correct format for saving
+                gen_imgs = gen_imgs.float().cpu()
+                
                 # Save generated images
-                print("gen ims shape: " ,gen_imgs.shape)
-                save_image(gen_imgs.float().cpu(), img_pretraining_path + f'/epoch_{epoch:02d}.png', nrow=n_images_per_class, normalize=True)
+                save_image(gen_imgs, img_pretraining_path + f'/epoch_{epoch:02d}.png', nrow=n_images_per_class, normalize=True)
                 
                 # Save model states
                 torch.save(generator.state_dict(), models_pretraining_path + f'/{epoch:02d}_gen.pth')
