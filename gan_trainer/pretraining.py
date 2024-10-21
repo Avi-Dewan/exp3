@@ -196,6 +196,7 @@ def gan_pretraining(generator, discriminator, classifier, loader_train,
 
             if epoch == n_epochs - 1:
                 # Save generated images
+                print(gen_imgs.shape)
                 save_image(gen_imgs.data, img_pretraining_path + f'/epoch_{epoch:02d}.png', nrow=n_images_per_class, normalize=True)
                 
                 # Save model states
