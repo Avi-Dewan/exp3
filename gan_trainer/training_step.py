@@ -71,11 +71,10 @@ def generator_train_step(discriminator, generator, g_optimizer, criterion,
     # print("fake_images shape", fake_images.shape)
     # print("validity shape ", validity.shape)
     # g_loss = criterion(validity, Variable(torch.ones(batch_size)).to(device))
-    import pdb; pdb.set_trace()
     g_loss = generator_loss(validity)
 
     # print("g_loss shape" , g_loss.shape)
-    # print("g_loss = ", g_loss)
+    print("g_loss = ", g_loss)
     g_loss.backward()
     g_optimizer.step()
     return g_loss.item()
