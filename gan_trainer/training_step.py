@@ -50,6 +50,8 @@ def generator_train_step(discriminator, generator, g_optimizer, criterion,
     Returns:
         TYPE: loss value
     """
+    # import pdb; pdb.set_trace()
+
     g_optimizer.zero_grad()
 
     device = next(generator.parameters()).device
@@ -61,9 +63,10 @@ def generator_train_step(discriminator, generator, g_optimizer, criterion,
         labels = Variable(torch.LongTensor(np.random.randint(0, n_classes, batch_size))).to(device)
     # print("labels shape from generator_train_step")
     # print(labels.shape)
+
     fake_images = generator(generator_input, labels)
 
-    validity = discriminator(fake_images, labels).squeeze(dim=1)
+    validity = discriminator(fake_images, labels)
 
     # print("fake_images shape", fake_images.shape)
     # print("validity shape ", validity.shape)
@@ -94,33 +97,35 @@ def discriminator_train_step(discriminator, generator, d_optimizer, criterion,
     Returns:
         TYPE: loss value
     """
+
     d_optimizer.zero_grad()
 
     device = next(generator.parameters()).device
     batch_size = len(real_images)
 
-    # train with real images
-    real_validity = discriminator(real_images, labels).squeeze(dim=1)
-
-    # print("chnage check")
-    # loss for real images
-    # d_loss = criterion(real_validity, Variable(torch.ones(batch_size)).to(device))
+    
 
     # train with fake images
     generator_input = Variable(torch.randn(batch_size, latent_dim)).to(device)
     fake_labels = Variable(torch.LongTensor(np.random.randint(0, n_classes, batch_size))).to(device)
+
+    # might be problem: generator_input & fake_labels are  distribution in generator
     fake_images = generator(generator_input, fake_labels)
-    fake_validity = discriminator(fake_images, fake_labels).squeeze(dim=1)
 
-    # print("real image shape: ", real_images.shape)
-    # print("real validity shape: ", real_validity.shape)
-    # print("fake image shape: ", fake_images.shape)
-    # print("fake validity shape: ", fake_validity.shape)
+    D_input = torch.cat([fake_images, real_images], 0)
+    D_class = torch.cat([fake_labels, labels], 0)
 
-    # loss for fake images
-    # d_loss += criterion(fake_validity, Variable(torch.zeros(batch_size)).to(device))
+    # fake_validity = discriminator(fake_images, fake_labels).squeeze(dim=1)
 
-    d_loss_real, d_loss_fake = discriminator_loss(fake_validity, real_validity)
+    # # train with real images
+    # real_validity = discriminator(real_images, labels).squeeze(dim=1)
+
+    D_out = discriminator(D_input, D_class)
+
+    D_fake, D_real = torch.split(D_out, [fake_images.shape[0], real_images.shape[0]])
+
+
+    d_loss_real, d_loss_fake = discriminator_loss(D_fake, D_real)
     d_loss = d_loss_fake + d_loss_real
 
     # print("d_loss shape: " , d_loss.shape)

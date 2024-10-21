@@ -23,5 +23,5 @@ class Discriminator(nn.Module):
     def forward(self, img, labels):
         # Concatenate image and label condition
         validity = self.discriminator(img, labels)
-        validity = F.sigmoid(validity)
+        # validity = F.sigmoid(validity)
         return validity

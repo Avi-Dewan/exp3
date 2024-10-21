@@ -21,7 +21,7 @@ from modules.module import feat2prob, target_distribution
 from models.resnet import ResNet, BasicBlock
 from sklearn.metrics.cluster import normalized_mutual_info_score as nmi_score
 from sklearn.metrics import adjusted_rand_score as ari_score
-from utils.util import cluster_acc, Identity, AverageMeter, seed_torch, str2bool
+from utils.util import cluster_acc, Identity, AverageMeter, seed_torch, str2bool, toggle_grad
 
 def test(model, test_loader, args, tsne=False):
     model.eval()
@@ -159,10 +159,14 @@ def gan_pretraining(generator, discriminator, classifier, loader_train,
                 generator.train()
                 discriminator.train()
 
+                toggle_grad(generator, False)
+                toggle_grad(discriminator, True)
+
                 d_loss = discriminator_train_step(discriminator, generator, d_optimizer, criterion_gan,
                                                   real_images, labels, latent_dim, n_classes)
                 d_loss_list.append(d_loss)
 
+                toggle_grad(generator, True)
                 g_loss = generator_train_step(discriminator, generator, g_optimizer, criterion_gan,
                                               loader_train.batch_size, latent_dim, n_classes=n_classes)
                 g_loss_list.append(g_loss)
