@@ -141,8 +141,12 @@ def gan_pretraining(generator, discriminator, classifier, loader_train,
         d_loss_epochs = []
         for epoch in range(n_epochs):
             print(f'Starting epoch {epoch}/{n_epochs}...', end=' ')
+            generator.train()
+            discriminator.train()
+            
             g_loss_list = []
             d_loss_list = []
+            
             for batch_idx, ((images, _), targets, _) in enumerate(tqdm(loader_train)):
 
                 # real_images = Variable(images).to(device)
@@ -156,9 +160,6 @@ def gan_pretraining(generator, discriminator, classifier, loader_train,
                 real_images = Variable(images).to(device)
                 labels = (targets - 5).to(device)
 
-                generator.train()
-                discriminator.train()
-
                 toggle_grad(generator, False)
                 toggle_grad(discriminator, True)
 
@@ -167,6 +168,8 @@ def gan_pretraining(generator, discriminator, classifier, loader_train,
                 d_loss_list.append(d_loss)
 
                 toggle_grad(generator, True)
+                toggle_grad(discriminator, False)
+
                 g_loss = generator_train_step(discriminator, generator, g_optimizer, criterion_gan,
                                               loader_train.batch_size, latent_dim, n_classes=n_classes)
                 g_loss_list.append(g_loss)
