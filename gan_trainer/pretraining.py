@@ -157,6 +157,7 @@ def gan_pretraining(generator, discriminator, classifier, loader_train,
                 labels = (targets - 5).to(device)
 
                 generator.train()
+                discriminator.train()
 
                 d_loss = discriminator_train_step(discriminator, generator, d_optimizer, criterion_gan,
                                                   real_images, labels, latent_dim, n_classes)
@@ -173,6 +174,8 @@ def gan_pretraining(generator, discriminator, classifier, loader_train,
 
             gen_imgs = generator(latent_space, gen_labels).view(-1, 3, img_size, img_size)
 
+            # print(g_loss_list)
+            # print(d_loss_list)
 
             print(f"[D loss: {np.mean(d_loss_list)}] [G loss: {np.mean(g_loss_list)}]")
             g_loss_epochs.append(np.mean(g_loss_list))

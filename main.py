@@ -115,6 +115,9 @@ classifier = classifier_pretraining(args, train_loader, eval_loader)
 generator = Generator(args.n_classes, args.latent_dim, args.img_size).to(args.device)
 discriminator = Discriminator(args.n_classes, args.img_size).to(args.device)
 
+print(generator)
+print(discriminator)
+
 generator, discriminator = gan_pretraining(generator, discriminator, classifier, train_loader,
                                            args.lr_g_pretraining, args.lr_d_pretraining,
                                            args.latent_dim, args.n_classes,
