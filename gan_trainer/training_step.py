@@ -64,8 +64,8 @@ def generator_train_step(discriminator, generator, g_optimizer, criterion,
     # print("labels shape from generator_train_step")
     # print(labels.shape)
 
-    z_.sample()
-    y_.sample()
+    z_.sample_()
+    y_.sample_()
     generator_input = z_
     fake_labels = y_
 
@@ -114,8 +114,8 @@ def discriminator_train_step(discriminator, generator, d_optimizer,
     # generator_input = Variable(torch.randn(batch_size, latent_dim)).to(device)
     # fake_labels = Variable(torch.LongTensor(np.random.randint(0, n_classes, batch_size))).to(device)
 
-    z_.sample()
-    y_.sample()
+    z_.sample_()
+    y_.sample_()
     generator_input = z_
     fake_labels = y_
 
