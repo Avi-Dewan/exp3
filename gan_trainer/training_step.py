@@ -33,8 +33,7 @@ def classifier_train_step(classifieur, inputs, optimizer, criterion, labels):
     return loss.item()
 
 
-def generator_train_step(discriminator, generator, g_optimizer, criterion,
-                         batch_size, z_, y_):
+def generator_train_step(discriminator, generator, g_optimizer, z_, y_):
     """Summary
 
     Args:
