@@ -182,7 +182,7 @@ def gan_pretraining(generator, discriminator, classifier, loader_train,
             n_images_per_class = 5
             z_.sample_()
             # Generate latent space and labels for each class
-            latent_space = z_[:(n_classes * n_images_per_class, latent_dim)]
+            latent_space = z_[:(n_classes * n_images_per_class)]
             gen_labels = Variable(torch.LongTensor(np.repeat(np.arange(n_classes), n_images_per_class))).to(device)
 
             # Generate images
