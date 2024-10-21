@@ -186,8 +186,7 @@ def gan_pretraining(generator, discriminator, classifier, loader_train,
             gen_labels = Variable(torch.LongTensor(np.repeat(np.arange(n_classes), n_images_per_class))).to(device)
 
             # Generate images
-            gen_imgs = generator(latent_space, gen_labels).view(-1, 3, img_size, img_size)
-
+            gen_imgs = generator(latent_space, gen_labels)
 
             # Print losses
             print(f"[D loss: {np.mean(d_loss_list)}] [G loss: {np.mean(g_loss_list)}]")
