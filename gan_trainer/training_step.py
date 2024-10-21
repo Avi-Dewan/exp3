@@ -34,7 +34,7 @@ def classifier_train_step(classifieur, inputs, optimizer, criterion, labels):
 
 
 def generator_train_step(discriminator, generator, g_optimizer, criterion,
-                         batch_size,  latent_dim, labels=None, n_classes=None):
+                         batch_size, z_, y_):
     """Summary
 
     Args:
@@ -54,19 +54,25 @@ def generator_train_step(discriminator, generator, g_optimizer, criterion,
 
     g_optimizer.zero_grad()
 
-    device = next(generator.parameters()).device
+    # device = next(generator.parameters()).device
 
-    generator_input = Variable(torch.randn(batch_size, latent_dim)).to(device)
+    # generator_input = Variable(torch.randn(batch_size, latent_dim)).to(device)
     # If no labels are given we generate random labels
-    if labels is None:
-        assert isinstance(n_classes, int), 'n_classes must be of type int when labels are not given'
-        labels = Variable(torch.LongTensor(np.random.randint(0, n_classes, batch_size))).to(device)
+    # if labels is None:
+    #     assert isinstance(n_classes, int), 'n_classes must be of type int when labels are not given'
+    #     labels = Variable(torch.LongTensor(np.random.randint(0, n_classes, batch_size))).to(device)
     # print("labels shape from generator_train_step")
     # print(labels.shape)
 
-    fake_images = generator(generator_input, labels)
+    z_.sample()
+    y_.sample()
+    generator_input = z_
+    fake_labels = y_
 
-    validity = discriminator(fake_images, labels)
+
+    fake_images = generator(generator_input, fake_labels)
+
+    validity = discriminator(fake_images, fake_labels)
 
     # print("fake_images shape", fake_images.shape)
     # print("validity shape ", validity.shape)
@@ -80,8 +86,8 @@ def generator_train_step(discriminator, generator, g_optimizer, criterion,
     return g_loss.item()
 
 
-def discriminator_train_step(discriminator, generator, d_optimizer, criterion,
-                             real_images, labels, latent_dim, n_classes):
+def discriminator_train_step(discriminator, generator, d_optimizer,
+                             real_images, labels, z_, y_):
     """
     Args:
         discriminator (TYPE): 
@@ -99,14 +105,19 @@ def discriminator_train_step(discriminator, generator, d_optimizer, criterion,
 
     d_optimizer.zero_grad()
 
-    device = next(generator.parameters()).device
-    batch_size = len(real_images)
+    # device = next(generator.parameters()).device
+    # batch_size = len(real_images)
 
     
 
     # train with fake images
-    generator_input = Variable(torch.randn(batch_size, latent_dim)).to(device)
-    fake_labels = Variable(torch.LongTensor(np.random.randint(0, n_classes, batch_size))).to(device)
+    # generator_input = Variable(torch.randn(batch_size, latent_dim)).to(device)
+    # fake_labels = Variable(torch.LongTensor(np.random.randint(0, n_classes, batch_size))).to(device)
+
+    z_.sample()
+    y_.sample()
+    generator_input = z_
+    fake_labels = y_
 
     # might be problem: generator_input & fake_labels are  distribution in generator
     fake_images = generator(generator_input, fake_labels)

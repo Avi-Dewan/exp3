@@ -21,7 +21,7 @@ from modules.module import feat2prob, target_distribution
 from models.resnet import ResNet, BasicBlock
 from sklearn.metrics.cluster import normalized_mutual_info_score as nmi_score
 from sklearn.metrics import adjusted_rand_score as ari_score
-from utils.util import cluster_acc, Identity, AverageMeter, seed_torch, str2bool, toggle_grad
+from utils.util import cluster_acc, Identity, AverageMeter, seed_torch, str2bool, toggle_grad , prepare_z_y
 
 def test(model, test_loader, args, tsne=False):
     model.eval()
@@ -133,6 +133,8 @@ def gan_pretraining(generator, discriminator, classifier, loader_train,
         discriminator.load_state_dict(torch.load(d_pretrained))
         print('loaded existing discriminator')
         loaded_dis = True
+    
+    z_, y_ = prepare_z_y(G_batch_size=128, dim_z=latent_dim, nclasses=n_classes)
 
 
     if not(loaded_gen and loaded_dis):
@@ -163,30 +165,29 @@ def gan_pretraining(generator, discriminator, classifier, loader_train,
                 toggle_grad(generator, False)
                 toggle_grad(discriminator, True)
 
-                d_loss = discriminator_train_step(discriminator, generator, d_optimizer, criterion_gan,
-                                                  real_images, labels, latent_dim, n_classes)
+                d_loss = discriminator_train_step(discriminator, generator, d_optimizer, 
+                                                  real_images, labels, z_, y_)
                 d_loss_list.append(d_loss)
 
                 toggle_grad(generator, True)
                 toggle_grad(discriminator, False)
 
                 g_loss = generator_train_step(discriminator, generator, g_optimizer, criterion_gan,
-                                              loader_train.batch_size, latent_dim, n_classes=n_classes)
+                                              z_, y_)
                 g_loss_list.append(g_loss)
 
             generator.eval()
 
             # Number of images per class
             n_images_per_class = 5
-
+            z_.sample_()
             # Generate latent space and labels for each class
-            latent_space = Variable(torch.randn(n_classes * n_images_per_class, latent_dim)).to(device)
+            latent_space = z_[:(n_classes * n_images_per_class, latent_dim)]
             gen_labels = Variable(torch.LongTensor(np.repeat(np.arange(n_classes), n_images_per_class))).to(device)
 
             # Generate images
             gen_imgs = generator(latent_space, gen_labels).view(-1, 3, img_size, img_size)
 
-            print(g_loss_list)
 
             # Print losses
             print(f"[D loss: {np.mean(d_loss_list)}] [G loss: {np.mean(g_loss_list)}]")
