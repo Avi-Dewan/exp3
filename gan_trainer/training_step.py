@@ -74,7 +74,7 @@ def generator_train_step(discriminator, generator, g_optimizer, criterion,
     g_loss = generator_loss(validity)
 
     # print("g_loss shape" , g_loss.shape)
-    print("validty = " , validity, ", g_loss = ", g_loss)
+    
     g_loss.backward()
     g_optimizer.step()
     return g_loss.item()
