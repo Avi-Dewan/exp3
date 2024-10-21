@@ -143,7 +143,7 @@ def gan_pretraining(generator, discriminator, classifier, loader_train,
             print(f'Starting epoch {epoch}/{n_epochs}...', end=' ')
             generator.train()
             discriminator.train()
-            
+
             g_loss_list = []
             d_loss_list = []
             
@@ -185,6 +185,8 @@ def gan_pretraining(generator, discriminator, classifier, loader_train,
 
             # Generate images
             gen_imgs = generator(latent_space, gen_labels).view(-1, 3, img_size, img_size)
+
+            print(g_loss_list)
 
             # Print losses
             print(f"[D loss: {np.mean(d_loss_list)}] [G loss: {np.mean(g_loss_list)}]")
