@@ -185,6 +185,9 @@ def gan_pretraining(generator, discriminator, classifier, loader_train,
             latent_space = z_[:(n_classes * n_images_per_class)]
             gen_labels = Variable(torch.LongTensor(np.repeat(np.arange(n_classes), n_images_per_class))).to(device)
 
+            print(latent_space)
+            print(gen_labels)
+
             # Generate images
             gen_imgs = generator(latent_space, gen_labels)
 
@@ -195,8 +198,8 @@ def gan_pretraining(generator, discriminator, classifier, loader_train,
 
             if epoch == n_epochs - 1:
                 # Save generated images
-                print(gen_imgs.shape)
-                # save_image(gen_imgs.float().cpu(), img_pretraining_path + f'/epoch_{epoch:02d}.png', nrow=n_images_per_class, normalize=True)
+                print("gen ims shape: " ,gen_imgs.shape)
+                save_image(gen_imgs.float().cpu(), img_pretraining_path + f'/epoch_{epoch:02d}.png', nrow=n_images_per_class, normalize=True)
                 
                 # Save model states
                 torch.save(generator.state_dict(), models_pretraining_path + f'/{epoch:02d}_gen.pth')
