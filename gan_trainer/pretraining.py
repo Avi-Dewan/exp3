@@ -186,7 +186,7 @@ def gan_pretraining(generator, discriminator, classifier, loader_train,
             gen_labels = Variable(torch.LongTensor(np.repeat(np.arange(n_classes), n_images_per_class))).to(device)
 
             # Convert labels to one-hot encoding
-            gen_labels_one_hot = torch.nn.functional.F.one_hot(gen_labels, num_classes=n_classes).float().to(device)
+            gen_labels_one_hot = torch.nn.functional.one_hot(gen_labels, num_classes=n_classes).float().to(device)
 
             # Generate images
             gen_imgs = generator(latent_space, gen_labels_one_hot).view(-1, 3, img_size, img_size)
