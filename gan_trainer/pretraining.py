@@ -181,15 +181,17 @@ def gan_pretraining(generator, discriminator, classifier, loader_train,
             # Number of images per class
             n_images_per_class = 5
             z_.sample_()
+            y_.sample_()
             # Generate latent space and labels for each class
-            latent_space = Variable(torch.randn(n_classes * n_images_per_class, latent_dim)).to(device)
+            latent_space = z_[:(n_classes * n_images_per_class)]
             gen_labels = Variable(torch.LongTensor(np.repeat(np.arange(n_classes), n_images_per_class))).to(device)
+            gen_labels = y_[:(n_classes * n_images_per_class)]
 
-            # Convert labels to one-hot encoding
-            gen_labels_one_hot = torch.nn.functional.one_hot(gen_labels, num_classes=n_classes).to(device)
+            print(latent_space)
+            print(gen_labels)
 
             # Generate images
-            gen_imgs = generator(latent_space, gen_labels_one_hot).view(-1, 3, img_size, img_size)
+            gen_imgs = generator(latent_space, gen_labels)
 
             # Print losses
             print(f"[D loss: {np.mean(d_loss_list)}] [G loss: {np.mean(g_loss_list)}]")
@@ -197,11 +199,10 @@ def gan_pretraining(generator, discriminator, classifier, loader_train,
             d_loss_epochs.append(np.mean(d_loss_list))
 
             if epoch == n_epochs - 1:
-                # Ensure images are in the correct format for saving
-                gen_imgs = gen_imgs.float().cpu()
-                
                 # Save generated images
-                save_image(gen_imgs, img_pretraining_path + f'/epoch_{epoch:02d}.png', nrow=n_images_per_class, normalize=True)
+                print("gen ims shape: " ,gen_imgs.shape)
+                print(gen_imgs)
+                save_image(gen_imgs.float().cpu(), img_pretraining_path + f'/epoch_{epoch:02d}.png', nrow=n_images_per_class, normalize=True)
                 
                 # Save model states
                 torch.save(generator.state_dict(), models_pretraining_path + f'/{epoch:02d}_gen.pth')
