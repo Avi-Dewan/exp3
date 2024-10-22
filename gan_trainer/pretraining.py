@@ -187,8 +187,8 @@ def gan_pretraining(generator, discriminator, classifier, loader_train,
             z_.sample_()
             y_.sample_()
 
-            latent_space = z_[:n_classes * n_images_per_class]
-            gen_labels = y_[:n_classes * n_images_per_class]
+            # latent_space = z_[:n_classes * n_images_per_class]
+            # gen_labels = y_[:n_classes * n_images_per_class]
             # Generate images
             gen_imgs = generator(latent_space, gen_labels).view(-1, 3, img_size, img_size)
 
@@ -197,6 +197,12 @@ def gan_pretraining(generator, discriminator, classifier, loader_train,
             print(f"[D loss: {np.mean(d_loss_list)}] [G loss: {np.mean(g_loss_list)}]")
             g_loss_epochs.append(np.mean(g_loss_list))
             d_loss_epochs.append(np.mean(d_loss_list))
+
+            print(gen_imgs)
+
+            print()
+
+            print(gen_imgs.data)
 
             if epoch == n_epochs - 1:
                 # Save generated images
