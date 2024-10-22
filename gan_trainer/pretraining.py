@@ -172,7 +172,7 @@ def gan_pretraining(generator, discriminator, classifier, loader_train,
                 toggle_grad(generator, True)
                 toggle_grad(discriminator, False)
 
-                g_loss = generator_train_step(discriminator, generator, g_optimizer
+                g_loss = generator_train_step(discriminator, generator, g_optimizer,
                                               z_, y_)
                 g_loss_list.append(g_loss)
 
