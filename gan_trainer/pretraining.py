@@ -187,8 +187,8 @@ def gan_pretraining(generator, discriminator, classifier, loader_train,
             z_.sample_()
             y_.sample_()
 
-            # latent_space = z_[:n_classes * n_images_per_class]
-            # gen_labels = y_[:n_classes * n_images_per_class]
+            latent_space = z_[:n_classes * n_images_per_class]
+            gen_labels = y_[:n_classes * n_images_per_class]
             # Generate images
             gen_imgs = generator(latent_space, gen_labels).view(-1, 3, img_size, img_size)
 
@@ -206,7 +206,7 @@ def gan_pretraining(generator, discriminator, classifier, loader_train,
 
             if epoch == n_epochs - 1:
                 # Save generated images
-                save_image(gen_imgs.data, img_pretraining_path + f'/epoch_{epoch:02d}.png', nrow=n_images_per_class, normalize=True)
+                save_image(gen_imgs.data, img_pretraining_path + f'/epoch_{epoch:02d}.jpg', nrow=n_images_per_class, normalize=True)
                 
                 # Save model states
                 torch.save(generator.state_dict(), models_pretraining_path + f'/{epoch:02d}_gen.pth')
